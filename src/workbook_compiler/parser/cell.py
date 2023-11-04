@@ -19,6 +19,7 @@ def excel_from_number(column: int) -> str:
 
 def number_from_excel(column: str) -> int:
     total = 0
+    # Fancy notation to reverse a string is str[::-1]
     for ndx, letter in enumerate(column[::-1]):
         letter_val = (ord(letter) - 65) + 1
         val = letter_val * (26**ndx)
@@ -34,11 +35,13 @@ class Contents():
         return self.value
 
 class Cell():
-    VALID_A1_COLUMNS = [excel_from_number(col) for col  in range(256)]
+    VALID_A1_COLUMNS = [excel_from_number(col) for col in range(MAX_COLUMNS)]
 
     # Internally, we represent the row/column as 1-indexed values
-    def __init__(self, notation: str, 
-                 row: int, column: Union[str, int], 
+    def __init__(self, 
+                 notation: str, 
+                 row: int, 
+                 column: Union[str, int], 
                  contents: Contents = None):
         self.notation = notation
         if notation not in ALLOWED_NOTATIONS:
@@ -110,8 +113,6 @@ def _test_equality():
     assert Cell('RC', 1, 1) == (Cell('A1', 1, 'A'))
     assert Cell('RC', 1, 1) != Cell('A1', 2, 'A')
     assert Cell('A1', 22, 'AA') == Cell('RC', 22, 27)
-
-    
 
 if __name__ == '__main__':
     _test_excel_from_number()

@@ -19,9 +19,17 @@ class Range():
     def __repr__(self):
         return self.__str__()
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, Range) and
+            (self.start == other.start) and
+            (self.end == other.end))
+
 class LinearRange(Range):
     VALID_DIRECTIONS = ['down', 'right']
     def __init__(self, name: str, start_cell : Cell, length: int, header: Contents = None, direction: str = 'down'):
+        self.length = length
+
         # Construct the end_cell from the offset.
         # Then, set the notation to be the same as the start cell.
         # Construct as RC to save on construction complexity.
@@ -30,21 +38,18 @@ class LinearRange(Range):
         else:
             self.header = None
 
+        offset = 0 if header else -1
+        self.direction = direction
+
         if direction == 'down':
             # This offset is because we need to be inclusive of the first cell if 
             # there is no header. That is, R1C1 -> R10C1 is length 10. With a header in R1C1, 
             # We then want R1C1->R11C1, where the values are in R2C1->R11C1. 
-            offset = 0 if header else -1
             end_cell = Cell('RC', start_cell.offset_row(length+offset), start_cell.column)
-            end_cell.notation = start_cell.notation
-
         elif direction == 'right':
-            offset = 0 if header else -1
             end_cell = Cell('RC', start_cell.row, start_cell.offset_column(length+offset))
-            end_cell.notation = start_cell.notation
+        end_cell.notation = start_cell.notation
         
-        self.direction = direction
-
         # EITHER our rows are the same, and columns are different
         # OR the rows are different, and columns are the same
         # Degenerate rows are not linear rows.
@@ -58,10 +63,11 @@ class LinearRange(Range):
             raise ParseException(f"{name} is not a linear range (start {start_cell}, end {end_cell})")
 
     def __eq__(self, other):
-        if isinstance(other, Range):
-            return (self.start == other.start) and (self.end == other.end)
-        else:
-            return False
+        return (
+            isinstance(other, LinearRange) and
+            self.direction == other.direction and
+            super(LinearRange, self).__eq__(other)
+        )
     
     def __str__(self):
         base = super(LinearRange, self).__str__()
@@ -86,12 +92,28 @@ def _test_is_linear_range():
     assert LinearRange('georgi', Cell('A1', 100, 'C'), 200, 
                        header=Contents("hi"), 
                        direction='right')
+    assert LinearRange('heidi', Cell('A1', 100, 'C'), 200, 
+                       header=Contents("byte"), 
+                       direction='right')
 
 def _test_range_equality():
     lr1 = LinearRange('alice', Cell('RC', 1, 1), 100)
     r1 = Range('range', 'bob', Cell('RC', 1, 1), Cell('RC', 1, 100))
     r2 = LinearRange('clarice', Cell('RC', 100, 3), 1000)
     dr1 = DegenerateRange('dauntless', Cell('RC', 1, 1))
+
+    lr2 = LinearRange('georgi', Cell('A1', 100, 'C'), 200, 
+                       header=Contents("hi"), 
+                       direction='right')
+    lr3 = LinearRange('heidi', Cell('A1', 100, 'C'), 200, 
+                       header=Contents("bye"), 
+                       direction='right')
+    lr4 = LinearRange('idina', Cell('A1', 100, 'C'), 200, 
+                       header=Contents("wat"), 
+                       direction='down')
+    
+    # [print(v) for v in [lr1, r1, r2, dr1, lr2, lr3, lr4]]
+
     assert lr1 == lr1 
     assert r1 == r1
     assert r2 == r2
@@ -99,6 +121,9 @@ def _test_range_equality():
     assert lr1 != r1
     assert lr1 != r2
     assert lr1 != dr1
+    assert lr2 == lr3
+    assert lr2 != lr4
+    assert lr3 != lr4
 
 if __name__ == '__main__':
     _test_is_linear_range()

@@ -1,3 +1,4 @@
+jsonnet
 mkdocs
 mypy
 mkdocstrings[python]
