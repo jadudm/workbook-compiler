@@ -3,4 +3,15 @@ site_url: https://example.com/
 nav:
   - Home: index.md
   - About: about.md
-theme: readthedocs
+  - Code Reference:
+    - Parser Types: workbook_compiler-reference.md
+theme:
+  name: "readthedocs"
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
