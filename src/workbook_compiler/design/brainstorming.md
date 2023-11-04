@@ -46,20 +46,22 @@ crc = Cell("RC", 1, 1)
 
 I may want to come around later and add optional properties to a cell. For now, this is a bare minimum to get started.
 
-## LinearRange
+## Range
 
 ```
 python3 -m parser_types.range
 ```
 
-A LinearRange has a name, a start cell, and an end cell.
+A Range has a type, a name, a start cell, and an end cell.
 
-It is linear because it is in one row or column. For example:
+The types might be `range`, `linear_range`, or `degenerate_range`.
+
+A range is linear because it is in one row or column. For example:
 
 * A1:A20 is one-dimensional, and therefore linear
 * A1:B20 is two-dimensional, and therefore not linear
 
-For now, I really only want to work with linear ranges.
+For now, I really mostly want to work with linear ranges.
 
 ```
 name_string := [A-Za-z]+[A-Za-z0-9_]*
@@ -92,7 +94,15 @@ Workbook := { type: "workbook", name: name_string, sheets: Sheet* }
 
 # Refinements
 
-Ranges are going to want to have a notion of a header or title cell. 
+Ranges are going to want to have a notion of a header or title cell. That will want to be positioned at the `top`, `left`, `right`, or `bottom`. 
+
+* Can only `linear_range`s have a header cell?
+  * Should a range from A1:A10 have the header cell in A1 if the position is `top`? 
+  * Or, should the header cell be A1, and the range is... A2:A11?
+  * What would it mean for a linear range of A1:A10 to have a position of `left` or `right`? Or, is that an error?
+  * Positions might be `start` or `end` instead.
+  * If the range has a header cell, then... should the constructor allow a start, a length, and then if a header exists, the values are auto-constructed?
+
 
 Cells will want some notion of formatting. Unclear whether Ranges will have formatting.
 
@@ -100,3 +110,25 @@ Ranges will want some notion of validation functions.
 
 Ranges may want a notion of a fill function, so that (when generated), they are populated. This lets me create ranges of static values.
 
+## Range refinement
+
+This would suggest
+
+```
+name_string := [A-Za-z]+[A-Za-z0-9_]*
+drection := "down" | "right"
+Range := { type: "range", name: name_string, start: Cell, end: Cell}
+       | { type: "linear_range", name: name_string, start: Cell, length: int, header: Cell, direction: direction }
+       | { type: "degenerate_range", name: name_string, start: Cell }
+```
+
+## Cell refinement
+
+Now, I need a way for Cells to do more than just be a location.
+
+```
+Cell := { type: "cell", notation: notation_type, column: column_a1, row: row_a1 }
+      | { type: "cell", notation: notation_type, column: column_rc, row: row_rc, properties: CellProperties }
+CellProperties := { content: string, format: Format | None }
+Format := ...
+```

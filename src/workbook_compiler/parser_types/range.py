@@ -1,5 +1,5 @@
 from base.exceptions import ParseException
-from .cell import Cell
+from .cell import Cell, Contents
 
 class Range():
     VALID_RANGE_TYPES = ['range', 'linear_range', 'degenerate_range']
@@ -13,28 +13,65 @@ class Range():
         self.end = end_cell
     
     def __str__(self):
-        return f"R{self.start.row}C{self.start.column} -> R{self.end.row}C{self.end.column}"
+        base = f"[{self.name}] R{self.start.row}C{self.start.column} -> R{self.end.row}C{self.end.column}"
+        return base
     
+    def __repr__(self):
+        return self.__str__()
+
 class LinearRange(Range):
-    def __init__(self, name: str, start_cell : Cell, end_cell: Cell):
-        r = Range('linear_range', name, start_cell, end_cell)
+    VALID_DIRECTIONS = ['down', 'right']
+    def __init__(self, name: str, start_cell : Cell, length: int, header: Contents = None, direction: str = 'down'):
+        # Construct the end_cell from the offset.
+        # Then, set the notation to be the same as the start cell.
+        # Construct as RC to save on construction complexity.
+        if header:
+            self.header = Cell('RC', start_cell.row, start_cell.column, contents=header)
+        else:
+            self.header = None
+
+        if direction == 'down':
+            # This offset is because we need to be inclusive of the first cell if 
+            # there is no header. That is, R1C1 -> R10C1 is length 10. With a header in R1C1, 
+            # We then want R1C1->R11C1, where the values are in R2C1->R11C1. 
+            offset = 0 if header else -1
+            end_cell = Cell('RC', start_cell.offset_row(length+offset), start_cell.column)
+            end_cell.notation = start_cell.notation
+
+        elif direction == 'right':
+            offset = 0 if header else -1
+            end_cell = Cell('RC', start_cell.row, start_cell.offset_column(length+offset))
+            end_cell.notation = start_cell.notation
+        
+        self.direction = direction
+
         # EITHER our rows are the same, and columns are different
         # OR the rows are different, and columns are the same
         # Degenerate rows are not linear rows.
-        if (r.start.row == r.end.row) and (r.start.column != r.end.column):
+        if (start_cell.row == end_cell.row) and (start_cell.column != end_cell.column):
             super(LinearRange, self).__init__('linear_range', name, start_cell, end_cell)
-        elif (r.start.row != r.end.row) and (r.start.column == r.end.column):
+        elif (start_cell.row != end_cell.row) and (start_cell.column == end_cell.column):
             super(LinearRange, self).__init__('linear_range', name, start_cell, end_cell)
-        elif (r.start.row == r.end.row) and (r.start.column == r.end.column):
-            raise ParseException(f"{r.name} is degenerate, not linear")
+        elif (start_cell.row == end_cell.row) and (start_cell.column == end_cell.column):
+            raise ParseException(f"{name} is degenerate, not linear")
         else:
-            raise ParseException(f"{r.name} is not a linear range (start {r.start}, end {r.end})")
-        
-        def __eq__(self, other):
-            if isinstance(other, Range):
-                return (self.start == other.start) and (self.end == other.end)
-            else:
-                return False
+            raise ParseException(f"{name} is not a linear range (start {start_cell}, end {end_cell})")
+
+    def __eq__(self, other):
+        if isinstance(other, Range):
+            return (self.start == other.start) and (self.end == other.end)
+        else:
+            return False
+    
+    def __str__(self):
+        base = super(LinearRange, self).__str__()
+        addl = ""
+        if self.header:
+            addl += f' header: {self.header}' 
+        if self.direction:
+            addl += f' direction: {self.direction}'
+        return base + addl
+
 
 class DegenerateRange(Range):
     def __init__(self, name: str, start_cell : Cell):
@@ -42,17 +79,18 @@ class DegenerateRange(Range):
         super(DegenerateRange, self).__init__('degenerate_range', name, start_cell, start_cell)
 
 def _test_is_linear_range():
-    assert LinearRange('alice', Cell('RC', 1, 1), Cell('RC', 1, 100))
-    assert LinearRange('clarice', Cell('RC', 100, 3), Cell('A1', 1000, 'C'))
-    try:
-        assert LinearRange('bob', Cell('RC', 1, 1), Cell('RC', 100, 100))
-    except ParseException as pe:
-        assert "bob is not a linear range" in f"{pe}"
+    assert LinearRange('alice', Cell('RC', 1, 1), 100)
+    assert LinearRange('clarice', Cell('A1', 100, 'C'), 2000)
+    assert LinearRange('elphaba', Cell('A1', 100, 'C'), 200, direction='right')
+    assert LinearRange('frankie', Cell('A1', 100, 'C'), 200, direction='down')
+    assert LinearRange('georgi', Cell('A1', 100, 'C'), 200, 
+                       header=Contents("hi"), 
+                       direction='right')
 
 def _test_range_equality():
-    lr1 = LinearRange('alice', Cell('RC', 1, 1), Cell('RC', 1, 100))
+    lr1 = LinearRange('alice', Cell('RC', 1, 1), 100)
     r1 = Range('range', 'bob', Cell('RC', 1, 1), Cell('RC', 1, 100))
-    r2 = LinearRange('clarice', Cell('RC', 100, 3), Cell('A1', 1000, 'C'))
+    r2 = LinearRange('clarice', Cell('RC', 100, 3), 1000)
     dr1 = DegenerateRange('dauntless', Cell('RC', 1, 1))
     assert lr1 == lr1 
     assert r1 == r1

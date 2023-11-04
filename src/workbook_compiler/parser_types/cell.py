@@ -25,11 +25,21 @@ def number_from_excel(column: str) -> int:
         total += val
     return total
 
+class Contents():
+    def __init__(self, value, properties: dict = None):
+        self.value = value
+        self.properties = properties
+    
+    def __str__(self):
+        return self.value
+
 class Cell():
     VALID_A1_COLUMNS = [excel_from_number(col) for col  in range(256)]
 
     # Internally, we represent the row/column as 1-indexed values
-    def __init__(self, notation: str, row: int, column: Union[str, int]):
+    def __init__(self, notation: str, 
+                 row: int, column: Union[str, int], 
+                 contents: Contents = None):
         self.notation = notation
         if notation not in ALLOWED_NOTATIONS:
             raise ParseException(f'Cell notation is not A1 or RC')
@@ -44,17 +54,29 @@ class Cell():
             if column not in Cell.VALID_A1_COLUMNS:
                 raise ParseException(f'{column} not a valid A1 column')
             self.column = number_from_excel(column)
+        if contents:
+            self.contents = contents
+        if not contents:
+            self.contents = Contents("")
+            
 
     def as_rc(self):
         return f'R{self.row}C{self.column}'
+    
     def as_a1(self):
         return f'{excel_from_number(self.column)}{self.row}'
     
+    def offset_row(self, v):
+        return self.row + v
+    
+    def offset_column(self, v):
+        return self.column + v
+
     def __str__(self):
         if self.notation == 'A1':
-            return self.as_a1()
+            return f"{self.as_a1()} <- {self.contents.value}"
         else:
-            return self.as_rc()
+            return f"{self.as_rc()} <- {self.contents.value}"
 
     def __eq__(self, other):
         if isinstance(other, Cell):
@@ -76,10 +98,10 @@ def _test_number_from_excel():
 
 def _test_conversion():
     # RC cells come back in __str__ as RC
-    assert f"{Cell('RC', 8, 2)}" == 'R8C2'
+    assert 'R8C2' in f"{Cell('RC', 8, 2)}"
     assert Cell('RC', 8, 2).as_a1() == 'B8'
     # A1 cells come back in __str__ as A1
-    assert f"{Cell('A1', 1, 'A')}" == 'A1'
+    assert 'A1' in f"{Cell('A1', 1, 'A')}"
     assert Cell('A1', 22, 'AA').as_rc() == 'R22C27'
 
 def _test_equality():
