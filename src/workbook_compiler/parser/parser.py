@@ -5,16 +5,24 @@ from parser.range import Range, LinearRange, DegenerateRange
 from parser.cell import Cell, Contents
 from base.exceptions import ParseException
 
+def parse_contents(c):
+    requires = ['value']
+    for r in requires:
+        if r not in c:
+            raise ParseException(f'missing key {r} in cell')
+    return Contents(c['value'])
+
 def parse_cell(c):
     requires = ['notation', 'row', 'column']
     for r in requires:
         if r not in c:
             raise ParseException(f'missing key {r} in cell')
-
-    contents = None
     if 'contents' in c:
-        contents = "..."
-    return Cell(c['notation'], c['row'], c['column'], contents=Contents(contents))
+        print("CONTENTS", c)
+    return Cell(c['notation'], 
+                c['row'], 
+                c['column'], 
+                contents=parse_contents(c) if 'contents' in c else None)
 
 
 def parse_range(rng):
@@ -28,6 +36,21 @@ def parse_range(rng):
                      rng['name'],
                      parse_cell(rng['start']),
                      parse_cell(rng['end']))
+    
+    elif rng['type'] == 'linear_range':
+        requires = ['length']
+        for r in requires:
+            if r not in rng:
+                raise ParseException(f'missing key {r} in linear_range')
+        return LinearRange(name = rng['name'], 
+                           start_cell = parse_cell(rng['start']),
+                           length = rng['length'],
+                           header = rng.get('header', None),
+                           contents = [parse_contents(c) for c in rng.get('contents', None)],
+                           direction = rng.get('direction', 'down')
+                           )
+    else:
+        raise ParseException(f'unknown range {rng}')
 
 
 def parse_sheet(sh):

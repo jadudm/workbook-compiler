@@ -1,5 +1,4 @@
-import typing
-from typing import Union
+from typing import Union, Dict, Any
 from base.exceptions import ParseException
 
 
@@ -27,7 +26,9 @@ def number_from_excel(column: str) -> int:
     return total
 
 class Contents():
-    def __init__(self, value, properties: dict = None):
+    def __init__(self, value, properties: Dict[str, Any] = None):
+        if isinstance(value, Contents):
+            raise ParseException(f"Contents cannot contain Contents")
         self.value = value
         self.properties = properties
     
@@ -57,10 +58,12 @@ class Cell():
             if column not in Cell.VALID_A1_COLUMNS:
                 raise ParseException(f'{column} not a valid A1 column')
             self.column = number_from_excel(column)
-        if contents:
+        if contents and isinstance(contents, Contents):
             self.contents = contents
-        if not contents:
+        elif not contents:
             self.contents = Contents("")
+        else:
+            raise ParseException(f'{contents} is not a Contents object')
             
 
     def as_rc(self):
@@ -80,6 +83,9 @@ class Cell():
             return f"{self.as_a1()} <- {self.contents.value}"
         else:
             return f"{self.as_rc()} <- {self.contents.value}"
+
+    def __repr__(self):
+        return self.__str__()
 
     def __eq__(self, other):
         if isinstance(other, Cell):
