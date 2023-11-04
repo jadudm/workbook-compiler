@@ -7,6 +7,20 @@ local r1 = {
 
 local r2 = {
   name: 'bob',
+  type: 'range',
+  start: { notation: 'RC', column: 1, row: 1 },
+  end: { notation: 'A1', column: 'B', row: 10 },
+};
+
+local r3 = {
+  name: 'clarice',
+  type: 'range',
+  start: { notation: 'RC', column: 1, row: 1 },
+  end: { notation: 'A1', column: 'C', row: 10 },
+};
+
+local r4 = {
+  name: 'dauntless',
   type: 'linear_range',
   start: { notation: 'RC', column: 2, row: 1 },
   length: 2,
@@ -18,11 +32,11 @@ local r2 = {
   sheets: [
     {
       name: 'First sheet',
-      ranges: [r1, r1, r1, r1],
+      ranges: [r1, r2],
     },
     {
       name: 'Second sheet',
-      ranges: [r1, r2],
+      ranges: [r3, r4],
     },
   ],
 }

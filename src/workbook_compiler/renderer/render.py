@@ -15,25 +15,33 @@ def normalize(s):
     return s
 
 
-def add_named_range(opwb, opsh, sh, r):
+def add_named_range(opwb, opsh, sh, r, prepend_sheet_name = False):
     # Add as a global named range
     range_start = r.start.as_a1()
     range_end = r.end.as_a1()
     ref = f"{quote_sheetname(opsh.title)}!{absolute_coordinate(range_start + ':' + range_end)}"
-    range_name = normalize(f"{sh.name}_{r.name}")
+    range_name = r.name
+    if prepend_sheet_name:
+        range_name = normalize(f"{sh.name}_{r.name}")
+    else:
+        # In case a named range is duplicated on the global table
+        # Automatically prepend in that case.
+        for k, _ in opwb.defined_names.items():
+            if r.name == k:
+                range_name = normalize(f"{sh.name}_{r.name}")
     opwb.defined_names[range_name] = DefinedName(range_name, attr_text=ref)
 
 
 def fill_range_values(opsh, r):
-    if isinstance(r, Range):
-        pass
-    elif isinstance(r, LinearRange):
+    if isinstance(r, LinearRange):
         r: LinearRange
         if r.contents:
             for cell in r.locations():
                 cell: Cell
                 wbc = opsh[cell.as_a1()]
                 wbc.value = f"{cell.contents.value}"
+    elif isinstance(r, Range):
+        pass
     else:
         raise RenderException(f"cannot render range of type {type(r)}")
 
