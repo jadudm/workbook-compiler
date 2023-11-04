@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "com_jadud_workbook_compiler"
+name = "workbook_compiler"
 version = "0.0.1"
 authors = [
   { name="Matt Jadud", email="matt@jadud.com" },
