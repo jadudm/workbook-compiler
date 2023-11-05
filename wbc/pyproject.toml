@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "wbc"
+version = "0.1.0"
+description = ""
+authors = ["Matt Jadud <matt@jadud.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+openpyxl = "^3.1.2"
+mypy = "^1.6.1"
+jsonnet = "^0.20.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

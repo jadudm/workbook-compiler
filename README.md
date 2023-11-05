@@ -2,32 +2,28 @@
 
 https://packaging.python.org/en/latest/tutorials/packaging-projects/
 
+https://python-poetry.org/docs/basic-usage/
+
 ## Testing
 
 Run
 
 ```
-hatch run pytest
+poetry run pytest
 ```
 
-from within web-cli
+from within `wbc``
 
+### Adding packages
 
-I need to figure out how to set up an installable package that can have tests that are aware of the project/package paths.
+```
+poetry add <package>
+```
 
 
 ## Testing
 
 Running the command line
 
-```
-pipx run hatch env run wb
-```
-
-May need `pipx` in the local environment
 
 ## Installation
-
-```console
-pip install wbc-cli
-```
