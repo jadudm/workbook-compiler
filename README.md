@@ -7,17 +7,10 @@ https://packaging.python.org/en/latest/tutorials/packaging-projects/
 Run
 
 ```
-python -m pytest
+hatch run pytest
 ```
 
-or
-
-```
-pytest
-```
-
-from within src/wbc-cli
-
+from within web-cli
 
 
 I need to figure out how to set up an installable package that can have tests that are aware of the project/package paths.
