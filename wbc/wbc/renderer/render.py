@@ -9,13 +9,14 @@ from wbc.parser.range import Range, LinearRange, DegenerateRange
 from wbc.parser.cell import Cell
 from wbc.base.exceptions import RenderException
 
+
 def normalize(s):
     s = re.sub("\\s+", "_", s)
     s = s.lower()
     return s
 
 
-def add_named_range(opwb, opsh, sh, r, prepend_sheet_name = False):
+def add_named_range(opwb, opsh, sh, r, prepend_sheet_name=False):
     # Add as a global named range
     range_start = r.start.as_a1()
     range_end = r.end.as_a1()
@@ -33,7 +34,7 @@ def add_named_range(opwb, opsh, sh, r, prepend_sheet_name = False):
 
 
 # This asks for a list of locations from the range.
-# It will create Cell objects for each location, and 
+# It will create Cell objects for each location, and
 # populate it with its contents. This way, we can easily
 # populate cells in the workbook from those Cell objects.
 def fill_range_values(opsh, r):
@@ -57,6 +58,7 @@ def fill_range_values(opsh, r):
         pass
     else:
         raise RenderException(f"cannot render range of type {type(r)}")
+
 
 # opwb : openpxl workbook
 # opsh : openpxl sheet
