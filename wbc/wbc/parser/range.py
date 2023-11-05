@@ -39,10 +39,16 @@ class LinearRange(Range):
         length: int,
         header: Contents = None,
         contents: List[Contents] = None,
+        dynamic: str = None,
+        validation: str = None,
+        function1: str = None,
         direction: str = "down",
     ):
         self.length = length
         self.contents = contents
+        self.dynamic = dynamic
+        self.validation = validation
+        self.function1 = function1
 
         # Construct the end_cell from the offset.
         # Then, set the notation to be the same as the start cell.
@@ -52,23 +58,21 @@ class LinearRange(Range):
         else:
             self.header = None
 
-        offset = 0 if header else -1
         self.direction = direction
 
         # Build the end_cell
         end_cell = None
-
         if direction == "down":
             # This offset is because we need to be inclusive of the first cell if
             # there is no header. That is, R1C1 -> R10C1 is length 10. With a header in R1C1,
             # We then want R1C1->R11C1, where the values are in R2C1->R11C1.
             if header:
                 start.row += 1
-            end_cell = Cell("RC", start.offset_row(length + offset), start.column)
+            end_cell = Cell("RC", start.offset_row(length - 1), start.column)
         elif direction == "right":
             if header:
                 start.column += 1
-            end_cell = Cell("RC", start.row, start.offset_column(length + offset))
+            end_cell = Cell("RC", start.row, start.offset_column(length - 1))
         end_cell.notation = start.notation
         self.end = end_cell
 
@@ -98,17 +102,28 @@ class LinearRange(Range):
     def locations(self):
         if self.direction == "down":
             values = range(self.start.row, self.end.row + 1)
-            return [
-                Cell("RC", ndx, self.start.column, v)
-                for ndx, v in zip(values, self.contents)
-            ]
+            if self.contents:
+                return [
+                    Cell("RC", ndx, self.start.column, v)
+                    for ndx, v in zip(values, self.contents)
+                ]
+            elif self.dynamic or self.function1 or self.validation:
+                return [
+                    Cell("RC", ndx, self.start.column, "")
+                    for ndx in values
+                ]
         if self.direction == "right":
             values = range(self.start.column, self.end.column + 1)
-            return [
-                Cell("RC", self.start.row, ndx, v)
-                for ndx, v in zip(values, self.contents)
-            ]
-
+            if self.contents:
+                return [
+                    Cell("RC", self.start.row, ndx, v)
+                    for ndx, v in zip(values, self.contents)
+                ]
+            elif self.dynamic or self.function1 or self.validation:
+                return [
+                    Cell("RC", self.start.row, ndx, "")
+                    for ndx in values
+                ]
     def _start(self):
         return self.start
 
@@ -147,17 +162,18 @@ class DegenerateRange(LinearRange):
         start: Cell,
         header: Contents = None,
         contents: Contents = None,
+        dynamic: str = None,
+        validation: str = None,
+        function1: str = None,
         direction: str = "down",
     ):
-        self.name = name
-        self.start = start
-        self.header = header
-        self.contents = contents
-        self.direction = direction
-
-        # if header:
-        #     self.header = Cell('RC', start.row,
-        #                        start.column, contents=header)
+        # self.name = name
+        # self.start = start
+        # self.header = header
+        # self.contents = contents
+        # self.dynamic = dynamic
+        # self.validation = validation
+        # self.direction = direction
 
         super(DegenerateRange, self).__init__(
             name=name,
@@ -165,6 +181,9 @@ class DegenerateRange(LinearRange):
             length=1,
             header=header,
             contents=contents,
+            dynamic=dynamic,
+            validation=validation,
+            function1=function1,
             direction=direction,
         )
         self.type = "degenerate_range"

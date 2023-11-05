@@ -7,12 +7,53 @@ from wbc.base.exceptions import ParseException
 
 
 def parse_contents(c):
+    if c is None:
+        return None
     requires = ["value"]
     for r in requires:
         if r not in c:
             raise ParseException(f"missing key {r} in cell")
     return Contents(c["value"])
 
+def parse_node(node, root=False):
+    if node is None:
+        return None
+    if node['node'] == "operator":
+        rands = ",".join(map(parse_node, node['operands']))
+        application = f"{node['name']}({rands})" 
+        if root:
+            return f"={application}"
+        else:
+            return application
+    if node['node'] == 'operand':
+        if node['type'] in ['str', 'string']:
+            return f"\"{node['value']}\""
+        elif node['type'] in ['int', 'integer', 'named_range']:
+            return f"{node['value']}"
+        elif node['type'] in ['bool', 'boolean']:
+            if node['value'] == True:
+                return "1"
+            else:
+                return "0"
+        # Abs determines the type of reference:
+        # 1: absolute ($A$1)
+        # 2: row reference type is absolute; column reference is relative (A$1)
+        # 3: row (relative); column (absolute) ($A1)
+        # 4: relative (A1)
+        elif node['type'] in ['absolute']:
+            row = node['value'].get('row', None)
+            column = node['value'].get('column', None)
+            if row is None or column is None:
+                raise ParseException("absolute addresses need both a row and column")
+            return f"INDIRECT(ADDRESS({row},{column},1,0),0)"
+        elif node['type'] in ['relative']:
+            row = node['value'].get('row', "0")
+            column = node['value'].get('column', "0")
+            if row == "" and column  == "":
+                raise ParseException("relative address must have a row or column")
+            return f"INDIRECT(ADDRESS({row},{column},4,0),0)"
+        else:
+            raise ParseException(f"no type for operand {node['value']}")
 
 def parse_cell(c):
     requires = ["notation", "row", "column"]
@@ -35,10 +76,16 @@ def parse_range(rng):
     }
     optional = {
         "range": [],
-        "linear_range": ["header", "contents", "func", "direction"],
-        "degenerate_range": [],
+        "linear_range": ["header", "contents", "dynamic", "direction", "validation", "function"],
+        "degenerate_range": ["header", "contents", "dynamic", "direction", "validation", "function"],
     }
-    may_not_have = {"range": [], "linear_range": ["end"], "degenerate_range": []}
+    may_not_have = {"range": [], "linear_range": [
+        "end"], "degenerate_range": []}
+    one_of = {
+        "range": [],
+        "linear_range": ["contents", "function1", "dynamic"],
+        "degenerate_range": ["contents", "function1", "dynamic"]
+    }
 
     if "type" not in rng:
         raise ParseException(f"missing `type` key in range")
@@ -55,9 +102,18 @@ def parse_range(rng):
         if r in rng:
             raise ParseException(f"key {r} not allowed in {rng['type']} range")
 
+    found_one = False
+    for r in one_of[rng["type"]]:
+        if (r in rng) and found_one:
+            print(rng)
+            raise ParseException(f"may only have one of {one_of[rng['type']]} in {rng['name']}")
+        elif (r in rng) and not found_one:
+            found_one = True
+
     if rng["type"] == "range":
         return Range(
-            rng["type"], rng["name"], parse_cell(rng["start"]), parse_cell(rng["end"])
+            rng["type"], rng["name"], parse_cell(
+                rng["start"]), parse_cell(rng["end"])
         )
 
     elif rng["type"] == "linear_range":
@@ -65,16 +121,35 @@ def parse_range(rng):
         for r in requires:
             if r not in rng:
                 raise ParseException(f"missing key {r} in linear_range")
+        if 'contents' in rng:
+            contents = [parse_contents(c) for c in rng.get("contents", None)]
+        else:
+            contents = None
         return LinearRange(
             name=rng["name"],
             start=parse_cell(rng["start"]),
             length=rng["length"],
-            header=rng.get("header", None),
-            contents=[parse_contents(c) for c in rng.get("contents", None)],
+            header=parse_contents(rng.get("header", None)),
+            contents=contents,
+            dynamic=rng.get("dynamic", None),
+            validation=parse_node(rng.get("validation", None), root=True),
+            function1=parse_node(rng.get("function1", None), root=True),
             direction=rng.get("direction", "down"),
         )
     elif rng["type"] == "degenerate_range":
-        return DegenerateRange(name=rng["name"], start=parse_cell(rng["start"]))
+        if 'contents' in rng:
+            contents = [parse_contents(c) for c in rng.get("contents", None)]
+        else:
+            contents = None
+        return DegenerateRange(name=rng["name"],
+                               start=parse_cell(rng["start"]),
+                               header=parse_contents(rng.get("header", None)),
+                               contents=contents,
+                               dynamic=rng.get("dynamic", None),
+                               validation=parse_node(rng.get("validation", None), root=True),
+                               function1=parse_node(rng.get("function1", None), root=True),
+                               direction=rng.get("direction", "down"),
+                               )
     else:
         raise ParseException(f"unknown range {rng}")
 

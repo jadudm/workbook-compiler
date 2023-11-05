@@ -4,6 +4,12 @@ https://packaging.python.org/en/latest/tutorials/packaging-projects/
 
 https://python-poetry.org/docs/basic-usage/
 
+https://formulas.readthedocs.io/en/stable/doc.html#
+
+https://pypi.org/project/xlcalculator/
+
+https://github.com/bradbase/flyingkoala
+
 ## Testing
 
 Run
@@ -24,6 +30,10 @@ poetry add <package>
 ## Testing
 
 Running the command line
+
+```
+poetry install ; poetry run wbc tests/fixtures/addl_ueis.jsonnet /tmp/foo.xlsx
+```
 
 
 ## Installation

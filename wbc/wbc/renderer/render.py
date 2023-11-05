@@ -37,21 +37,33 @@ def add_named_range(opwb, opsh, sh, r, prepend_sheet_name=False):
 # It will create Cell objects for each location, and
 # populate it with its contents. This way, we can easily
 # populate cells in the workbook from those Cell objects.
-def fill_range_values(opsh, r):
-    if isinstance(r, DegenerateRange):
-        r: DegenerateRange
-        if r.contents:
-            for cell in r.locations():
-                cell: Cell
-                wbc = opsh[cell.as_a1()]
-                wbc.value = f"{cell.contents.value}"
-    elif isinstance(r, LinearRange):
+def fill_range_values(wbcwb, opsh, r):
+    if isinstance(r, DegenerateRange) or isinstance(r, LinearRange):
         r: LinearRange
+        if r.header:
+            wbc = opsh[r.header.as_a1()]
+            wbc.value = f"{r.header.contents.value}"
         if r.contents:
             for cell in r.locations():
                 cell: Cell
                 wbc = opsh[cell.as_a1()]
                 wbc.value = f"{cell.contents.value}"
+        if r.dynamic:
+            m = getattr(wbcwb, "functions")
+            fun = getattr(m, r.dynamic)
+            for cell in r.locations():
+                cell: Cell
+                wbc = opsh[cell.as_a1()]
+                wbc.value = fun(cell)
+        if r.validation:
+            print(f"validation {r.validation}")
+        if r.function1:
+            print(r)
+            for cell in r.locations():
+                cell: Cell
+                wbc = opsh[cell.as_a1()]
+                wbc.value = r.function1
+
     elif isinstance(r, Range):
         r: Range
         # raise RenderException("cannot render Range")
@@ -62,15 +74,15 @@ def fill_range_values(opsh, r):
 
 # opwb : openpxl workbook
 # opsh : openpxl sheet
-# wb : Workbook
-# sh : Sheet
-def render(wb: Workbook):
+# wbcwb : workbook compiler Workbook
+# wbcsh : Sheet
+def render(wbcwb: Workbook):
     opwb = pxl.Workbook()
-    for sh in wb.sheets:
-        opsh = opwb.create_sheet(sh.name)
-        for r in sh.ranges:
-            add_named_range(opwb, opsh, sh, r)
-        for r in sh.ranges:
-            fill_range_values(opsh, r)
+    for wbcsh in wbcwb.sheets:
+        opsh = opwb.create_sheet(wbcsh.name)
+        for r in wbcsh.ranges:
+            add_named_range(opwb, opsh, wbcsh, r)
+        for r in wbcsh.ranges:
+            fill_range_values(wbcwb, opsh, r)
     opwb.remove(opwb["Sheet"])
     return opwb
