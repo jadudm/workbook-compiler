@@ -7,8 +7,20 @@
 
 **Table of Contents**
 
-- [Installation](#installation)
-- [License](#license)
+- [wbc cli](#wbc-cli)
+  - [Testing](#testing)
+  - [Installation](#installation)
+  - [License](#license)
+
+## Testing
+
+Running the command line
+
+```
+pipx run hatch env run wb
+```
+
+May need `pipx` in the local environment
 
 ## Installation
 

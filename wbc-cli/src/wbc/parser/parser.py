@@ -1,9 +1,9 @@
-from parser.reader import read
-from parser.workbook import Workbook
-from parser.sheet import Sheet
-from parser.range import Range, LinearRange, DegenerateRange
-from parser.cell import Cell, Contents
-from base.exceptions import ParseException
+from wbc.parser.reader import read
+from wbc.parser.workbook import Workbook
+from wbc.parser.sheet import Sheet
+from wbc.parser.range import Range, LinearRange, DegenerateRange
+from wbc.parser.cell import Cell, Contents
+from wbc.base.exceptions import ParseException
 
 
 def parse_contents(c):

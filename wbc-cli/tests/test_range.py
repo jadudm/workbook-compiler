@@ -1,5 +1,5 @@
-from parser.range import Range, LinearRange, DegenerateRange
-from parser.cell import Cell, Contents
+from wbc.parser.range import Range, LinearRange, DegenerateRange
+from wbc.parser.cell import Cell, Contents
 
 def test_is_linear_range():
     assert LinearRange('alice', Cell('RC', 1, 1), 100)
