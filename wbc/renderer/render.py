@@ -5,7 +5,7 @@ from openpyxl.workbook.defined_name import DefinedName
 from openpyxl.utils import quote_sheetname, absolute_coordinate
 
 from parser.workbook import Workbook
-from parser.range import Range, LinearRange
+from parser.range import Range, LinearRange, DegenerateRange
 from parser.cell import Cell
 from base.exceptions import RenderException
 
@@ -32,8 +32,19 @@ def add_named_range(opwb, opsh, sh, r, prepend_sheet_name = False):
     opwb.defined_names[range_name] = DefinedName(range_name, attr_text=ref)
 
 
+# This asks for a list of locations from the range.
+# It will create Cell objects for each location, and 
+# populate it with its contents. This way, we can easily
+# populate cells in the workbook from those Cell objects.
 def fill_range_values(opsh, r):
-    if isinstance(r, LinearRange):
+    if isinstance(r, DegenerateRange):
+        r: DegenerateRange
+        if r.contents:
+            for cell in r.locations():
+                cell: Cell
+                wbc = opsh[cell.as_a1()]
+                wbc.value = f"{cell.contents.value}"
+    elif isinstance(r, LinearRange):
         r: LinearRange
         if r.contents:
             for cell in r.locations():
@@ -41,6 +52,8 @@ def fill_range_values(opsh, r):
                 wbc = opsh[cell.as_a1()]
                 wbc.value = f"{cell.contents.value}"
     elif isinstance(r, Range):
+        r: Range
+        # raise RenderException("cannot render Range")
         pass
     else:
         raise RenderException(f"cannot render range of type {type(r)}")
@@ -57,4 +70,5 @@ def render(wb: Workbook):
             add_named_range(opwb, opsh, sh, r)
         for r in sh.ranges:
             fill_range_values(opsh, r)
+    opwb.remove(opwb["Sheet"])
     return opwb

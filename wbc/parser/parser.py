@@ -5,6 +5,7 @@ from parser.range import Range, LinearRange, DegenerateRange
 from parser.cell import Cell, Contents
 from base.exceptions import ParseException
 
+
 def parse_contents(c):
     requires = ['value']
     for r in requires:
@@ -12,43 +13,72 @@ def parse_contents(c):
             raise ParseException(f'missing key {r} in cell')
     return Contents(c['value'])
 
+
 def parse_cell(c):
     requires = ['notation', 'row', 'column']
     for r in requires:
         if r not in c:
             raise ParseException(f'missing key {r} in cell')
-    if 'contents' in c:
-        print("CONTENTS", c)
-    return Cell(c['notation'], 
-                c['row'], 
-                c['column'], 
+    return Cell(c['notation'],
+                c['row'],
+                c['column'],
                 contents=parse_contents(c) if 'contents' in c else None)
 
 
 def parse_range(rng):
-    requires = ['type', 'name', 'start']
-    for r in requires:
+    requires = {
+        'range': ['type', 'name', 'start', 'end'],
+        'linear_range': ['type', 'name', 'start', 'length'],
+        'degenerate_range': ['type', 'name', 'start']
+    }
+    optional = {
+        'range': [],
+        'linear_range': ['header', 'contents', 'func', 'direction'],
+        'degenerate_range': []
+    }
+    may_not_have = {
+        'range': [],
+        'linear_range': ['end'],
+        'degenerate_range': []
+    }
+
+    if 'type' not in rng:
+        raise ParseException(f"missing `type` key in range")
+
+    for r in requires[rng['type']]:
         if r not in rng:
             raise ParseException(f'missing key {r} in range')
+
+    for r in optional[rng['type']]:
+        if r in rng:
+            pass
+
+    for r in may_not_have[rng['type']]:
+        if r in rng:
+            raise ParseException(f"key {r} not allowed in {rng['type']} range")
 
     if rng['type'] == 'range':
         return Range(rng['type'],
                      rng['name'],
                      parse_cell(rng['start']),
                      parse_cell(rng['end']))
-    
+
     elif rng['type'] == 'linear_range':
         requires = ['length']
         for r in requires:
             if r not in rng:
                 raise ParseException(f'missing key {r} in linear_range')
-        return LinearRange(name = rng['name'], 
-                           start_cell = parse_cell(rng['start']),
-                           length = rng['length'],
-                           header = rng.get('header', None),
-                           contents = [parse_contents(c) for c in rng.get('contents', None)],
-                           direction = rng.get('direction', 'down')
+        return LinearRange(name=rng['name'],
+                           start=parse_cell(rng['start']),
+                           length=rng['length'],
+                           header=rng.get('header', None),
+                           contents=[parse_contents(
+                               c) for c in rng.get('contents', None)],
+                           direction=rng.get('direction', 'down')
                            )
+    elif rng['type'] == 'degenerate_range':
+        return DegenerateRange(name=rng['name'],
+                               start=parse_cell(rng['start']))
     else:
         raise ParseException(f'unknown range {rng}')
 

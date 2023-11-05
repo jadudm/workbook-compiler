@@ -14,3 +14,7 @@ def test_simple():
     run_test("fixtures/simple.jsonnet")
 def test_filled():
     run_test("fixtures/filled.jsonnet")
+def test_hortz():
+    run_test("fixtures/horizontal.jsonnet")
+def test_uei():
+    run_test("fixtures/addl_ueis.jsonnet")
