@@ -1,4 +1,4 @@
-from parser.range import Range
+from wbc.parser.range import Range
 
 class Sheet():
     def __init__(self, name: str, ranges: list[Range]):

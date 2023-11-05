@@ -1,5 +1,5 @@
 from typing import Union, Dict, Any
-from base.exceptions import ParseException
+from wbc.base.exceptions import ParseException
 
 
 ALLOWED_NOTATIONS = ['A1', 'RC']

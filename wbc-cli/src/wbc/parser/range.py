@@ -1,4 +1,4 @@
-from base.exceptions import ParseException
+from wbc.base.exceptions import ParseException
 from .cell import Cell, Contents
 from typing import List
 

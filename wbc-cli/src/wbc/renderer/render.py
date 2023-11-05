@@ -4,10 +4,10 @@ import openpyxl as pxl
 from openpyxl.workbook.defined_name import DefinedName
 from openpyxl.utils import quote_sheetname, absolute_coordinate
 
-from parser.workbook import Workbook
-from parser.range import Range, LinearRange, DegenerateRange
-from parser.cell import Cell
-from base.exceptions import RenderException
+from wbc.parser.workbook import Workbook
+from wbc.parser.range import Range, LinearRange, DegenerateRange
+from wbc.parser.cell import Cell
+from wbc.base.exceptions import RenderException
 
 def normalize(s):
     s = re.sub("\\s+", "_", s)

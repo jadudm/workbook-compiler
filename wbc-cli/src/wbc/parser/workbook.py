@@ -1,4 +1,4 @@
-from parser.sheet import Sheet
+from wbc.parser.sheet import Sheet
 from typing import List
 
 class Workbook():
