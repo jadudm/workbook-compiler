@@ -15,17 +15,21 @@ def parse_contents(c):
             raise ParseException(f"missing key {r} in cell")
     return Contents(c["value"])
 
-def parse_node(node, root=False):
+def parse_node(node):
     if node is None:
         return None
-    if node['node'] == "operator":
+    if node['node'] == "application":
         rands = ",".join(map(parse_node, node['operands']))
         application = f"{node['name']}({rands})" 
-        if root:
-            return f"={application}"
-        else:
-            return application
+        return application
+    if node['node'] == 'binop':
+        operator = node['operator']
+        lhs = parse_node(node['lhs'])
+        rhs = parse_node(node['rhs'])
+        return f"{lhs}{operator}{rhs}"
     if node['node'] == 'operand':
+        if node['value'] is None or node['type'] in ['None', 'null', 'nil']:
+            return ""
         if node['type'] in ['str', 'string']:
             return f"\"{node['value']}\""
         elif node['type'] in ['int', 'integer', 'named_range']:
@@ -125,6 +129,8 @@ def parse_range(rng):
             contents = [parse_contents(c) for c in rng.get("contents", None)]
         else:
             contents = None
+        validation = parse_node(rng.get("validation", None))
+        function1 = parse_node(rng.get("function1", None))
         return LinearRange(
             name=rng["name"],
             start=parse_cell(rng["start"]),
@@ -132,8 +138,8 @@ def parse_range(rng):
             header=parse_contents(rng.get("header", None)),
             contents=contents,
             dynamic=rng.get("dynamic", None),
-            validation=parse_node(rng.get("validation", None), root=True),
-            function1=parse_node(rng.get("function1", None), root=True),
+            validation=f"={validation}" if validation else None,
+            function1=f"={function1}" if function1 else None,
             direction=rng.get("direction", "down"),
         )
     elif rng["type"] == "degenerate_range":
@@ -141,13 +147,16 @@ def parse_range(rng):
             contents = [parse_contents(c) for c in rng.get("contents", None)]
         else:
             contents = None
+        validation = parse_node(rng.get("validation", None))
+        function1 = parse_node(rng.get("function1", None))
+
         return DegenerateRange(name=rng["name"],
                                start=parse_cell(rng["start"]),
                                header=parse_contents(rng.get("header", None)),
                                contents=contents,
                                dynamic=rng.get("dynamic", None),
-                               validation=parse_node(rng.get("validation", None), root=True),
-                               function1=parse_node(rng.get("function1", None), root=True),
+                               validation=f"={validation}" if validation else None,
+                               function1=f"={function1}" if function1 else None,
                                direction=rng.get("direction", "down"),
                                )
     else:
@@ -172,4 +181,5 @@ def parse_workbook(wb):
 
 def parse(file):
     obj = read(file)
+    print(obj)
     return parse_workbook(obj)

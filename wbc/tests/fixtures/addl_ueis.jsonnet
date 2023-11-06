@@ -1,3 +1,6 @@
+local wbb = import 'workbook_base.libsonnet';
+local xlsx = import 'workbook_functions.libsonnet';
+
 local header = {
   name: 'header',
   type: 'linear_range',
@@ -7,96 +10,50 @@ local header = {
   contents: [{ value: 'Description' }, { value: 'Value' }],
 };
 
-local make_boolean(v) = if v == true then 
-  { node: "operand", value: true, type: "boolean" }
-  else   
-  { node: "operand", value: false, type: "boolean" };
-
-local derive_type(value) =  if std.isBoolean(value) then "boolean" 
-      else if std.isNumber(value) then "integer" 
-      else if std.isString(value) then "string";
-
-local make_operand(value) = if std.isObject(value) 
-  then value
-  else {
-  node: "operand",
-  value: value,
-  type: derive_type(value)
-
-};
-
-local make_operator(name, operands) = {
-  node: "operator",
-  name: name,
-  operands: std.map(make_operand, operands)
-};
-
 local node = {
-  node: "operator",
-  name: "MOD",
+  node: 'application',
+  name: 'MOD',
   operands: [
     {
-      node: "operand",
+      node: 'operand',
       value: 3,
-      type: "string"
+      type: 'string',
     },
-    make_operator("AND", [true, false, 3, "hi", {
-      node: "operand",
-      value: "random_numbers",
-      type: "named_range"
-    }]),
+    wbb.make_application('AND', [true, false, 3, 'hi', wbb.named_range('random_numbers')]),
     {
-      node: "operand",
+      node: 'operand',
       value: 2,
-      type: "integer"
+      type: 'integer',
     },
     {
-      node: "operand",
+      node: 'operand',
       value: true,
-      type: "bool"
+      type: 'bool',
     },
     {
-      node: "operand",
-      value: { row: 2, column: 2},
-      type: "absolute"
+      node: 'operand',
+      value: { row: 2, column: 2 },
+      type: 'absolute',
     },
     {
-      node: "operand",
-      value: { row: 2, column: 2},
-      type: "relative"
+      node: 'operand',
+      value: { row: 2, column: 2 },
+      type: 'relative',
     },
     {
-      node: "operand",
-      value: "random_numbers",
-      type: "named_range"
+      node: 'operand',
+      value: 'random_numbers',
+      type: 'named_range',
     },
   ],
 };
 
-local make_relative_ref(row, col) = {
-  node: "operand",
-  value: {
-    [if row != null then "row"]: row,
-    [if col != null then "column"]: col,
-  },
-  type: "relative"
-};
+local addone = wbb.app('SUM', [wbb.make_relative_ref(-1, null), 1]);
+local addtwo = wbb.app('SUM', [wbb.make_relative_ref(-2, null), 2]);
+local adduei2 = wbb.app('SUM', [wbb.make_relative_ref(-3, null), wbb.named_range('auditee_uei')]);
+local adduei = wbb.app('SUM', [xlsx.RELATIVE(-3, null), xlsx.ABSOLUTE(2, 2)]);
+local adduei3 = xlsx.PLUS(10, wbb.named_range('auditee_uei'));
 
-local make_absolute_ref(row, col) = {
-  node: "operand",
-  value: {
-    row: row, column: col
-  },
-  type: "absolute"
-};
-
-local addone = make_operator("SUM", [make_relative_ref(-1, null), 1]);
-local addtwo = make_operator("SUM", [make_relative_ref(-2, null), 2]);
-local adduei = make_operator("SUM", [
-  make_relative_ref(-3, null), 
-  make_absolute_ref(2, 2)]);
-
- 
 local sheets = [
   {
     name: 'Cover Sheet',
@@ -107,7 +64,7 @@ local sheets = [
         type: 'degenerate_range',
         start: { notation: 'RC', row: 2, column: 1 },
         header: { value: 'Auditee UEI' },
-        dynamic: "random_uei",
+        dynamic: 'random_uei',
         direction: 'right',
       },
       {
@@ -117,7 +74,7 @@ local sheets = [
         length: 5,
         direction: 'right',
         header: { value: 'Random numbers' },
-        dynamic: "random_uei",
+        dynamic: 'random_uei',
       },
       {
         name: 'added_numbers',
@@ -144,6 +101,15 @@ local sheets = [
         length: 5,
         direction: 'right',
         header: { value: 'Add UEI' },
+        function1: adduei,
+      },
+      {
+        name: 'add_uei3',
+        type: 'linear_range',
+        start: { notation: 'RC', row: 7, column: 1 },
+        length: 5,
+        direction: 'right',
+        header: { value: 'Add UEI 3' },
         function1: adduei,
       },
     ],
