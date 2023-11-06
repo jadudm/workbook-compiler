@@ -19,11 +19,10 @@ local RELATIVE(row, col) = INDIRECT(ADDRESS(row, col, 4, 0, null), 0);
 
 local PLUS(a, b) = wbb.binop('+', a, b);
 
-{
+wbb + {
   ABSOLUTE:: ABSOLUTE,
   ADDRESS:: ADDRESS,
   INDIRECT:: INDIRECT,
   RELATIVE:: RELATIVE,
   PLUS:: PLUS,
-  named_range:: wbb.named_range
 }
