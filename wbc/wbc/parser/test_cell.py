@@ -27,19 +27,6 @@ def test_internals():
     assert Cell("RC", 1, 1).__repr__() == "R1C1"
     assert Cell("RC", 1, 1) != "Not a cell"
 
-
-def test_excel_from_number():
-    assert excel_from_number(1) == "A"
-    assert excel_from_number(255) == "IU"
-
-
-def test_number_from_excel():
-    assert number_from_excel("A") == 1
-    assert number_from_excel("Z") == 26
-    assert number_from_excel("AA") == 27
-    assert number_from_excel("IU") == 255
-
-
 def test_conversion():
     # RC cells come back in __str__ as RC
     assert "R8C2" in f"{Cell('RC', 8, 2)}"

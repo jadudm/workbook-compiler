@@ -26,6 +26,7 @@ def allowed_keys(o, keys):
     for k in o.keys():
         if k not in keys:
             raise ParseException(f"key {k} not allowed in object {o}")
+    return True
 
 
 def excel_from_number(column: int) -> str:

@@ -1,17 +1,17 @@
 from wbc.parser.range import Range, LinearRange
 from wbc.parser.cell import Cell, Contents
-
+from wbc.constants import DIRECTIONS
 
 def test_is_linear_range():
     assert LinearRange("alice", Cell("RC", 1, 1), 100)
     assert LinearRange("clarice", Cell("A1", 100, "C"), 2000)
-    assert LinearRange("elphaba", Cell("A1", 100, "C"), 200, direction="right")
-    assert LinearRange("frankie", Cell("A1", 100, "C"), 200, direction="down")
+    assert LinearRange("elphaba", Cell("A1", 100, "C"), 200, direction=DIRECTIONS.horizontal)
+    assert LinearRange("frankie", Cell("A1", 100, "C"), 200, direction=DIRECTIONS.vertical)
     assert LinearRange(
-        "georgi", Cell("A1", 100, "C"), 200, header=Contents("hi"), direction="right"
+        "georgi", Cell("A1", 100, "C"), 200, header=Contents("hi"), direction=DIRECTIONS.horizontal
     )
     assert LinearRange(
-        "heidi", Cell("A1", 100, "C"), 200, header=Contents("byte"), direction="right"
+        "heidi", Cell("A1", 100, "C"), 200, header=Contents("byte"), direction=DIRECTIONS.horizontal
     )
 
 
@@ -21,16 +21,14 @@ def test_range_equality():
     r2 = LinearRange("clarice", Cell("RC", 100, 3), 1000)
 
     lr2 = LinearRange(
-        "georgi", Cell("A1", 100, "C"), 200, header=Contents("hi"), direction="right"
+        "georgi", Cell("A1", 100, "C"), 200, header=Contents("hi"), direction=DIRECTIONS.horizontal
     )
     lr3 = LinearRange(
-        "heidi", Cell("A1", 100, "C"), 200, header=Contents("bye"), direction="right"
+        "heidi", Cell("A1", 100, "C"), 200, header=Contents("bye"), direction=DIRECTIONS.horizontal
     )
     lr4 = LinearRange(
-        "idina", Cell("A1", 100, "C"), 200, header=Contents("wat"), direction="down"
+        "idina", Cell("A1", 100, "C"), 200, header=Contents("wat"), direction=DIRECTIONS.vertical
     )
-
-    # [print(v) for v in [lr1, r1, r2, dr1, lr2, lr3, lr4]]
 
     assert lr1 == lr1
     assert r1 == r1

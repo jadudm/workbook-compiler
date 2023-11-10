@@ -64,3 +64,33 @@ The range is made up of `Cell`s. Those cells might:
 
 ## Cell
 
+```
+{
+    type: "cell",
+    notation: "RC" | "A1",
+    row: integer,
+    column: integer | string
+}
+```
+
+A `Cell` represents a single cell in a range.
+
+A cell can either be in row/column notation (`RC`) or A1 notation (`A1`). 
+
+The top-left corner of a sheet is R1C1 or A1, depending on the notation. The cells
+
+```
+{ type: "cell", notation: "RC", row: 1, column: 1}
+```
+
+and
+
+```
+{ type: "cell", notation: "A1", row: 1, column: "A"}
+```
+
+are considered to be equal.
+
+
+RC notation is either to work with for relative references. For example, to refer to a cell one row above from the current cell, the value `R-1C0` is used. 
+

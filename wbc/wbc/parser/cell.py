@@ -19,6 +19,7 @@ class Cell:
         notation: str,
         row: int,
         column: Union[str, int],
+        # Optional
         contents: Contents = None,
     ):
         self.notation = notation

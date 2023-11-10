@@ -1,11 +1,11 @@
 from .exceptions import ParseException
 from .formula import (
-    parse_formula, 
+    parse_formula,
     _parse_formula,
-    Application, 
-    BinOp, 
-    Formula, 
-    Operand, 
+    Application,
+    BinOp,
+    Formula,
+    Operand,
     TYPES)
 
 operands = [
@@ -39,8 +39,30 @@ applications = [
                 {"type": "operand:integer", "value": 5},
             ],
         },
-        Formula(Application("BOB", [Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)])),
+        Formula(Application(
+            "BOB", [Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)])),
         "=BOB(3, 5)",
+    ),
+    (
+        {
+            "type": "application",
+            "name": "BOB",
+            "operands": [
+                {"type": "operand:integer", "value": 3},
+                {
+                    "type": "binop",
+                    "operator": "+",
+                    "lhs": {"type": "operand:integer", "value": 3},
+                    "rhs": {"type": "operand:integer", "value": 5},
+                },
+            ],
+        },
+        Formula(Application(
+            "BOB", [
+                Operand(TYPES.integer, 3), 
+                BinOp("+", Operand(TYPES.integer, 3), Operand(TYPES.integer, 5))
+                ])),
+        "=BOB(3, (3+5))",
     ),
 ]
 
@@ -55,6 +77,28 @@ binops = [
         Formula(BinOp("+", Operand(TYPES.integer, 3), Operand(TYPES.integer, 5))),
         "=(3+5)",
     ),
+    (
+        {
+            "type": "binop",
+                    "operator": "+",
+                    "lhs": {"type": "operand:integer", "value": 3},
+                    "rhs": {
+                        "type": "application",
+                        "name": "BOB",
+                        "operands": [
+                            {"type": "operand:integer", "value": 3},
+                            {"type": "operand:integer", "value": 5},
+                        ],
+                    },
+        },
+        Formula(BinOp("+",
+                      Operand(TYPES.integer, 3),
+                      Application(
+                          "BOB", [Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)])
+                      )),
+        "=(3+BOB(3, 5))",
+
+    )
 ]
 
 

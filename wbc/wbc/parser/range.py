@@ -1,12 +1,18 @@
 from wbc.parser.exceptions import ParseException
 from .cell import Cell, parse_cell, Contents, parse_contents
-from .formula import parse_formula
+from .formula import (
+    parse_formula,
+    Formula
+    )
 from typing import List
-from wbc.parser.util import check_type, requires_keys, allowed_keys
-
+from wbc.parser.util import (
+    check_type, 
+    requires_keys, 
+    allowed_keys)
+from wbc.constants import DIRECTIONS
 
 class Range:
-    VALID_RANGE_TYPES = ["range", "linear_range", "degenerate_range"]
+    VALID_RANGE_TYPES = ["range", "linear_range"]
 
     def __init__(self, type: str, name: str, start: Cell, end: Cell):
         if type not in Range.VALID_RANGE_TYPES:
@@ -32,22 +38,22 @@ class Range:
 
 
 class LinearRange(Range):
-    VALID_DIRECTIONS = ["down", "right"]
 
     def __init__(
         self,
+        # Required
         name: str,
         start: Cell,
         length: int,
+        # Optional
         header: Contents = None,
         contents: List[Contents] = None,
         dynamic: str = None,
-        validation: str = None,
-        function1: str = None,
-        direction: str = "down",
+        validation: Formula = None,
+        function1: Formula = None,
+        direction: str = DIRECTIONS.vertical
     ):
         self.length = length
-        self.contents = contents
         self.dynamic = dynamic
         self.validation = validation
         self.function1 = function1
@@ -64,14 +70,14 @@ class LinearRange(Range):
 
         # Build the end_cell
         end_cell = None
-        if direction == "down":
+        if direction == DIRECTIONS.vertical:
             # This offset is because we need to be inclusive of the first cell if
             # there is no header. That is, R1C1 -> R10C1 is length 10. With a header in R1C1,
-            # We then want R1C1->R11C1, where the values are in R2C1->R11C1.
+            # We then want values in R2C1->R11C1.
             if header:
                 start.row += 1
             end_cell = Cell("RC", start.offset_row(length - 1), start.column)
-        elif direction == "right":
+        elif direction == DIRECTIONS.horizontal:
             if header:
                 start.column += 1
             end_cell = Cell("RC", start.row, start.offset_column(length - 1))
@@ -90,10 +96,13 @@ class LinearRange(Range):
             )
 
         # Check the length of the contents and length match.
-        if self.contents and (len(self.contents) != self.__len__()):
+        if contents and (len(self.contents) != self.__len__()):
             raise ParseException(
                 f"{len(contents)} contents but {self.__len__()} cells in range"
             )
+        else:
+            self.contents = contents
+
 
     def locations(self):
         if self.direction == "down":
