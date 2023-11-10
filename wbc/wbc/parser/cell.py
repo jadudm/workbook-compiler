@@ -1,6 +1,10 @@
-from typing import Union, Dict, Any
-from wbc.base.exceptions import ParseException
-
+from typing import Union
+from wbc.parser.exceptions import ParseException
+from .contents import (Contents, parse_contents)
+from wbc.parser.objects import (
+    check_type,
+    requires_keys
+    )
 
 ALLOWED_NOTATIONS = ["A1", "RC"]
 MAX_ROWS = 2**20
@@ -26,18 +30,6 @@ def number_from_excel(column: str) -> int:
         val = letter_val * (26**ndx)
         total += val
     return total
-
-
-class Contents:
-    def __init__(self, value, properties: Dict[str, Any] = None):
-        if isinstance(value, Contents):
-            raise ParseException(f"Contents cannot contain Contents")
-        self.value = value
-        self.properties = properties
-
-    def __str__(self):
-        return self.value
-
 
 class Cell:
     VALID_A1_COLUMNS = [excel_from_number(col) for col in range(MAX_COLUMNS)]
@@ -99,3 +91,14 @@ class Cell:
             return (self.row == other.row) and (self.column == other.column)
         else:
             return False
+
+
+def parse_cell(c):
+    requires_keys(c, ["type", "notation", "row", "column"])
+    check_type(c, "cell")
+    return Cell(
+        c["notation"],
+        c["row"],
+        c["column"],
+        contents=parse_contents(c) if "contents" in c else None,
+    )

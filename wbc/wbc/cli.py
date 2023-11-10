@@ -34,7 +34,7 @@ def cli(input, output, functions):
         #print(m.random_uei(3))
         setattr(wbcwb, 'functions', m)
     else:
-        wbcwb.setattr(wbcwb, 'functions', None)
+        setattr(wbcwb, 'functions', None)
 
     pxlwb = render(wbcwb)
     pxlwb.save(output)

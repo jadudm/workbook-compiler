@@ -1,6 +1,12 @@
-from wbc.base.exceptions import ParseException
-from .cell import Cell, Contents
+from wbc.parser.exceptions import ParseException
+from .cell import (Cell, parse_cell, Contents, parse_contents)
+from .formula import (parse_formula)
 from typing import List
+from wbc.parser.objects import (
+    check_type,
+    requires_keys,
+    allowed_keys
+    )
 
 
 class Range:
@@ -78,16 +84,10 @@ class LinearRange(Range):
 
         # EITHER our rows are the same, and columns are different
         # OR the rows are different, and columns are the same
-        # Degenerate rows are not linear rows.
         if (start.row == end_cell.row) and (start.column != end_cell.column):
             super(LinearRange, self).__init__("linear_range", name, start, end_cell)
         elif (start.row != end_cell.row) and (start.column == end_cell.column):
             super(LinearRange, self).__init__("linear_range", name, start, end_cell)
-        elif (start.row == end_cell.row) and (start.column == end_cell.column):
-            # DegenerateRange is a subclass of LinearRange
-            # raise ParseException(f"{name} is degenerate, not linear")
-            super(LinearRange, self).__init__("degenerate_range", name, start, end_cell)
-            pass
         else:
             raise ParseException(
                 f"{name} is not a linear range (start {start}, end {end_cell})"
@@ -154,36 +154,36 @@ class LinearRange(Range):
             addl += f" direction: {self.direction}"
         return base + addl
 
+def parse_linear_range(rng):
+    check_type(rng, "linear_range")
+    requires_keys(rng, ["type", "name", "start", "length"])
+    allowed_keys(rng, ["type", "name", "start", "length"] + [
+        "header", "contents", "dynamic", "validation", "function1", "direction"
+    ])
 
-class DegenerateRange(LinearRange):
-    def __init__(
-        self,
-        name: str,
-        start: Cell,
-        header: Contents = None,
-        contents: Contents = None,
-        dynamic: str = None,
-        validation: str = None,
-        function1: str = None,
-        direction: str = "down",
-    ):
-        # self.name = name
-        # self.start = start
-        # self.header = header
-        # self.contents = contents
-        # self.dynamic = dynamic
-        # self.validation = validation
-        # self.direction = direction
+    if 'contents' in rng:
+        contents = [parse_contents(c) for c in rng.get("contents", None)]
+    else:
+        contents = None
+    validation = parse_formula(rng.get("validation", None))
+    function1 = parse_formula(rng.get("function1", None))
+    return LinearRange(
+        name=rng["name"],
+        start=parse_cell(rng["start"]),
+        length=rng["length"],
+        header=parse_contents(rng.get("header", None)),
+        contents=contents,
+        dynamic=rng.get("dynamic", None),
+        validation=f"={validation}" if validation else None,
+        function1=f"={function1}" if function1 else None,
+        direction=rng.get("direction", "down"),
+    )
 
-        super(DegenerateRange, self).__init__(
-            name=name,
-            start=start,
-            length=1,
-            header=header,
-            contents=contents,
-            dynamic=dynamic,
-            validation=validation,
-            function1=function1,
-            direction=direction,
-        )
-        self.type = "degenerate_range"
+def parse_base_range(rng):
+    raise ParseException("no implementation for parsing base ranges")
+
+def parse_range(rng):
+    if check_type(rng, 'range'):
+        return parse_base_range(rng)
+    if check_type(rng, 'linear_range'):
+        return parse_linear_range(rng)

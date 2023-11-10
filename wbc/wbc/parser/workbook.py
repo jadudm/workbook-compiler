@@ -1,5 +1,9 @@
-from wbc.parser.sheet import Sheet
 from typing import List
+from wbc.parser.sheet import (Sheet, parse_sheet)
+from wbc.parser.objects import (
+    check_type,
+    requires_keys
+    )
 
 
 class Workbook:
@@ -12,3 +16,10 @@ class Workbook:
 
     def __repr__(self):
         return self.__str__()
+
+
+def parse_workbook(wb):
+    requires_keys(wb, ["type", "name", "sheets"])
+    check_type(wb, "workbook")
+    return Workbook(wb["name"], [parse_sheet(s) for s in wb["sheets"]])
+

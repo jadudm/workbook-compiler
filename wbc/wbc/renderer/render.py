@@ -5,9 +5,9 @@ from openpyxl.workbook.defined_name import DefinedName
 from openpyxl.utils import quote_sheetname, absolute_coordinate
 
 from wbc.parser.workbook import Workbook
-from wbc.parser.range import Range, LinearRange, DegenerateRange
+from wbc.parser.range import Range, LinearRange
 from wbc.parser.cell import Cell
-from wbc.base.exceptions import RenderException
+from wbc.parser.exceptions import RenderException
 
 
 def normalize(s):
@@ -84,5 +84,7 @@ def render(wbcwb: Workbook):
             add_named_range(opwb, opsh, wbcsh, r)
         for r in wbcsh.ranges:
             fill_range_values(wbcwb, opsh, r)
-    opwb.remove(opwb["Sheet"])
+    # If there is more than one sheet, remove the default.
+    if len(opwb.sheetnames) > 1:
+        opwb.remove(opwb["Sheet"])
     return opwb
