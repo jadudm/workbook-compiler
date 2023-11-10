@@ -4,3 +4,4 @@ dist
 *.xlsx
 .~lock.*#
 site/
+.coverage

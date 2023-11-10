@@ -1,35 +1,21 @@
 from typing import Union
+from wbc.constants import (
+    ALLOWED_NOTATIONS,
+    MAX_ROWS,
+    MAX_COLUMNS,
+)
+from wbc.parser.util import (
+    excel_from_number,
+    number_from_excel
+)
 from wbc.parser.exceptions import ParseException
 from .contents import (Contents, parse_contents)
-from wbc.parser.objects import (
+from wbc.parser.util import (
     check_type,
     requires_keys
     )
 
-ALLOWED_NOTATIONS = ["A1", "RC"]
-MAX_ROWS = 2**20
-MAX_COLUMNS = 2**8
 
-
-def excel_from_number(column: int) -> str:
-    col_string = ""
-    col_num = column
-    while col_num > 0:
-        current_letter_number = (col_num - 1) % 26
-        current_letter = chr(current_letter_number + 65)
-        col_string = current_letter + col_string
-        col_num = (col_num - (current_letter_number + 1)) // 26
-    return col_string
-
-
-def number_from_excel(column: str) -> int:
-    total = 0
-    # Fancy notation to reverse a string is str[::-1]
-    for ndx, letter in enumerate(column[::-1]):
-        letter_val = (ord(letter) - 65) + 1
-        val = letter_val * (26**ndx)
-        total += val
-    return total
 
 class Cell:
     VALID_A1_COLUMNS = [excel_from_number(col) for col in range(MAX_COLUMNS)]
@@ -79,9 +65,9 @@ class Cell:
 
     def __str__(self):
         if self.notation == "A1":
-            return f"{self.as_a1()} <- {self.contents.value}"
+            return f"{self.as_a1()}"
         else:
-            return f"{self.as_rc()} <- {self.contents.value}"
+            return f"{self.as_rc()}"
 
     def __repr__(self):
         return self.__str__()

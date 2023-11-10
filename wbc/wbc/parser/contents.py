@@ -1,6 +1,6 @@
 from typing import Dict, Any
 from wbc.parser.exceptions import ParseException
-from wbc.parser.objects import (
+from wbc.parser.util import (
     check_type,
     requires_keys
     )
@@ -17,10 +17,6 @@ class Contents:
 
 
 def parse_contents(c):
-    if c is None:
-        return None
-    requires = ["value"]
-    for r in requires:
-        if r not in c:
-            raise ParseException(f"missing key {r} in cell")
+    check_type(c, "contents")
+    requires_keys(c, ["value"])
     return Contents(c["value"])

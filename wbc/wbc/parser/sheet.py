@@ -1,5 +1,5 @@
 from wbc.parser.range import (Range, parse_range)
-from wbc.parser.objects import (
+from wbc.parser.util import (
     check_type,
     requires_keys
     )

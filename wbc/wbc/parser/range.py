@@ -2,7 +2,7 @@ from wbc.parser.exceptions import ParseException
 from .cell import (Cell, parse_cell, Contents, parse_contents)
 from .formula import (parse_formula)
 from typing import List
-from wbc.parser.objects import (
+from wbc.parser.util import (
     check_type,
     requires_keys,
     allowed_keys

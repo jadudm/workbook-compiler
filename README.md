@@ -20,6 +20,10 @@ poetry run pytest
 
 from within `wbc``
 
+```
+coverage run -m pytest ; coverage report -m
+```
+
 ### Adding packages
 
 ```

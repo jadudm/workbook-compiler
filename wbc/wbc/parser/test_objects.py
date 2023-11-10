@@ -1,4 +1,4 @@
-from .objects import (
+from .util import (
     check_type,
     requires_keys
 )

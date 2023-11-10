@@ -1,10 +1,14 @@
 from .exceptions import ParseException
 
-def check_type(o, type):
+def check_type(o, type, exception=True):
     if "type" not in o:
-        raise ParseException(f"Object does not contain key `type`")
+        if exception:
+            raise ParseException(f"Object does not contain key `type`")
+        else: return False
     if o['type'] != type:
-        raise ParseException(f"Object is not of type `{type}`")
+        if exception:
+            raise ParseException(f"Object is not of type `{type}`")
+        else: return False
     return True
     
 def requires_keys(o, keys):

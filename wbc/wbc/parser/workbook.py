@@ -1,6 +1,6 @@
 from typing import List
 from wbc.parser.sheet import (Sheet, parse_sheet)
-from wbc.parser.objects import (
+from wbc.parser.util import (
     check_type,
     requires_keys
     )
