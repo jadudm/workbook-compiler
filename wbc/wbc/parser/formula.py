@@ -89,17 +89,34 @@ class Application:
         # return "Application(name=%r, operands=%r)".format(self.name, self.operands)
         return self.__str__()
 
+class Formula():
+    def __init__(self, node):
+        if isinstance(node, Application) or isinstance(node, BinOp):
+            self.node = node
+        else:
+            raise ParseException("formulas may only contain Applications or BinOps")
+    
+    def __eq__(self, other):
+        return (isinstance(other, Formula)
+                and self.node == other.node
+                )
+    
+    def __str__(self):
+        return f"={self.node}"
 
-def parse_formula(node):
+    def __repr__(self):
+        return self.__str__()
+
+def _parse_formula(node):
     if node is None:
         return None
 
     if check_type(node, "application", exception=False):
-        return Application(node["name"], list(map(parse_formula, node["operands"])))
+        return Application(node["name"], list(map(_parse_formula, node["operands"])))
 
     elif check_type(node, "binop", exception=False):
         return BinOp(
-            node["operator"], parse_formula(node["lhs"]), parse_formula(node["rhs"])
+            node["operator"], _parse_formula(node["lhs"]), _parse_formula(node["rhs"])
         )
 
     elif check_type(node, "operand:null", exception=False):
@@ -118,3 +135,6 @@ def parse_formula(node):
         return Operand(TYPES.named_range, node["value"])
     else:
         raise ParseException(f"no type for operand {node['value']}")
+
+def parse_formula(node):
+    return Formula(_parse_formula(node))

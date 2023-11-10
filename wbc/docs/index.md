@@ -1,6 +1,11 @@
-# Welcome to MkDocs
+# Workbook compiler (`wbc`)
+ 
+The workbook compiler is a library and stand-alone CLI for translating a text description of a spreadsheet into the real thing.
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+## Documentation
+
+* [Quickstart](quickstart.md)
+* [Language Reference](language/reference.md)
 
 ## Commands
 

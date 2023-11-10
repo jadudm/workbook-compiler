@@ -1,7 +1,12 @@
-from .util import check_type, requires_keys
 from .exceptions import ParseException
-from .formula import parse_formula, Application, Operand, BinOp, TYPES
-import pytest
+from .formula import (
+    parse_formula, 
+    _parse_formula,
+    Application, 
+    BinOp, 
+    Formula, 
+    Operand, 
+    TYPES)
 
 operands = [
     ({"type": "operand:null"}, Operand(TYPES.null), ""),
@@ -22,8 +27,8 @@ operands = [
 applications = [
     (
         {"type": "application", "name": "SUM", "operands": []},
-        Application("SUM", []),
-        "SUM()",
+        Formula(Application("SUM", [])),
+        "=SUM()",
     ),
     (
         {
@@ -34,8 +39,8 @@ applications = [
                 {"type": "operand:integer", "value": 5},
             ],
         },
-        Application("BOB", [Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)]),
-        "BOB(3, 5)",
+        Formula(Application("BOB", [Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)])),
+        "=BOB(3, 5)",
     ),
 ]
 
@@ -47,15 +52,15 @@ binops = [
             "lhs": {"type": "operand:integer", "value": 3},
             "rhs": {"type": "operand:integer", "value": 5},
         },
-        BinOp("+", Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)),
-        "(3+5)",
+        Formula(BinOp("+", Operand(TYPES.integer, 3), Operand(TYPES.integer, 5))),
+        "=(3+5)",
     ),
 ]
 
 
 def test_operands():
     for op in operands:
-        parsed = parse_formula(op[0])
+        parsed = _parse_formula(op[0])
         assert parsed == op[1]
         assert str(op[1]) == op[2]
 
