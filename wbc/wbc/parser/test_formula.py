@@ -6,7 +6,8 @@ from .formula import (
     BinOp,
     Formula,
     Operand,
-    TYPES)
+    TYPES,
+)
 
 operands = [
     ({"type": "operand:null"}, Operand(TYPES.null), ""),
@@ -39,8 +40,9 @@ applications = [
                 {"type": "operand:integer", "value": 5},
             ],
         },
-        Formula(Application(
-            "BOB", [Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)])),
+        Formula(
+            Application("BOB", [Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)])
+        ),
         "=BOB(3, 5)",
     ),
     (
@@ -57,11 +59,15 @@ applications = [
                 },
             ],
         },
-        Formula(Application(
-            "BOB", [
-                Operand(TYPES.integer, 3), 
-                BinOp("+", Operand(TYPES.integer, 3), Operand(TYPES.integer, 5))
-                ])),
+        Formula(
+            Application(
+                "BOB",
+                [
+                    Operand(TYPES.integer, 3),
+                    BinOp("+", Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)),
+                ],
+            )
+        ),
         "=BOB(3, (3+5))",
     ),
 ]
@@ -80,25 +86,28 @@ binops = [
     (
         {
             "type": "binop",
-                    "operator": "+",
-                    "lhs": {"type": "operand:integer", "value": 3},
-                    "rhs": {
-                        "type": "application",
-                        "name": "BOB",
-                        "operands": [
-                            {"type": "operand:integer", "value": 3},
-                            {"type": "operand:integer", "value": 5},
-                        ],
-                    },
+            "operator": "+",
+            "lhs": {"type": "operand:integer", "value": 3},
+            "rhs": {
+                "type": "application",
+                "name": "BOB",
+                "operands": [
+                    {"type": "operand:integer", "value": 3},
+                    {"type": "operand:integer", "value": 5},
+                ],
+            },
         },
-        Formula(BinOp("+",
-                      Operand(TYPES.integer, 3),
-                      Application(
-                          "BOB", [Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)])
-                      )),
+        Formula(
+            BinOp(
+                "+",
+                Operand(TYPES.integer, 3),
+                Application(
+                    "BOB", [Operand(TYPES.integer, 3), Operand(TYPES.integer, 5)]
+                ),
+            )
+        ),
         "=(3+BOB(3, 5))",
-
-    )
+    ),
 ]
 
 

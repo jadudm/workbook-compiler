@@ -1,15 +1,10 @@
 from wbc.parser.exceptions import ParseException
 from .cell import Cell, parse_cell, Contents, parse_contents
-from .formula import (
-    parse_formula,
-    Formula
-    )
+from .formula import parse_formula, Formula
 from typing import List
-from wbc.parser.util import (
-    check_type, 
-    requires_keys, 
-    allowed_keys)
+from wbc.parser.util import check_type, requires_keys, allowed_keys
 from wbc.constants import DIRECTIONS
+
 
 class Range:
     VALID_RANGE_TYPES = ["range", "linear_range"]
@@ -38,7 +33,6 @@ class Range:
 
 
 class LinearRange(Range):
-
     def __init__(
         self,
         # Required
@@ -51,7 +45,7 @@ class LinearRange(Range):
         dynamic: str = None,
         validation: Formula = None,
         function1: Formula = None,
-        direction: str = DIRECTIONS.vertical
+        direction: str = DIRECTIONS.vertical,
     ):
         self.length = length
         self.dynamic = dynamic
@@ -102,7 +96,6 @@ class LinearRange(Range):
             )
         else:
             self.contents = contents
-
 
     def locations(self):
         if self.direction == "down":

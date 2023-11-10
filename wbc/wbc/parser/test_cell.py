@@ -27,6 +27,7 @@ def test_internals():
     assert Cell("RC", 1, 1).__repr__() == "R1C1"
     assert Cell("RC", 1, 1) != "Not a cell"
 
+
 def test_conversion():
     # RC cells come back in __str__ as RC
     assert "R8C2" in f"{Cell('RC', 8, 2)}"

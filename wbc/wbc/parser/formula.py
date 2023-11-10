@@ -89,23 +89,23 @@ class Application:
         # return "Application(name=%r, operands=%r)".format(self.name, self.operands)
         return self.__str__()
 
-class Formula():
+
+class Formula:
     def __init__(self, node):
         if isinstance(node, Application) or isinstance(node, BinOp):
             self.node = node
         else:
             raise ParseException("formulas may only contain Applications or BinOps")
-    
+
     def __eq__(self, other):
-        return (isinstance(other, Formula)
-                and self.node == other.node
-                )
-    
+        return isinstance(other, Formula) and self.node == other.node
+
     def __str__(self):
         return f"={self.node}"
 
     def __repr__(self):
         return self.__str__()
+
 
 def _parse_formula(node):
     if node is None:
@@ -135,6 +135,7 @@ def _parse_formula(node):
         return Operand(TYPES.named_range, node["value"])
     else:
         raise ParseException(f"no type for operand {node['value']}")
+
 
 def parse_formula(node):
     return Formula(_parse_formula(node))
