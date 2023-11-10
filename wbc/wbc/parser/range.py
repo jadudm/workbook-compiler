@@ -18,7 +18,7 @@ class Range:
         self.end = end
 
     def __str__(self):
-        base = f"[{self.name}] start R{self.start.row}C{self.start.column} end R{self.end.row}C{self.end.column}"
+        base = f"{self.name}|R{self.start.row}C{self.start.column}|R{self.end.row}C{self.end.column}"
         return base
 
     def __repr__(self):
@@ -46,12 +46,14 @@ class LinearRange(Range):
         validation: Formula = None,
         function1: Formula = None,
         direction: str = DIRECTIONS.vertical,
+        style: str = None
     ):
         self.length = length
         self.dynamic = dynamic
         self.validation = validation
         self.function1 = function1
-
+        self.style = style
+        
         # Construct the end_cell from the offset.
         # Then, set the notation to be the same as the start cell.
         # Construct as RC to save on construction complexity.
@@ -80,9 +82,9 @@ class LinearRange(Range):
 
         # EITHER our rows are the same, and columns are different
         # OR the rows are different, and columns are the same
-        if (start.row == end_cell.row) and (start.column != end_cell.column):
-            super(LinearRange, self).__init__("linear_range", name, start, end_cell)
-        elif (start.row != end_cell.row) and (start.column == end_cell.column):
+        if ((start.row == end_cell.row) and (start.column != end_cell.column) 
+            or (start.row != end_cell.row) and (start.column == end_cell.column)
+            or (start.row == end_cell.row) and (start.column == end_cell.column)):
             super(LinearRange, self).__init__("linear_range", name, start, end_cell)
         else:
             raise ParseException(
@@ -90,7 +92,7 @@ class LinearRange(Range):
             )
 
         # Check the length of the contents and length match.
-        if contents and (len(self.contents) != self.__len__()):
+        if contents and (len(contents) != self.__len__()):
             raise ParseException(
                 f"{len(contents)} contents but {self.__len__()} cells in range"
             )
@@ -98,7 +100,7 @@ class LinearRange(Range):
             self.contents = contents
 
     def locations(self):
-        if self.direction == "down":
+        if self.direction == DIRECTIONS.vertical:
             values = range(self.start.row, self.end.row + 1)
             if self.contents:
                 return [
@@ -107,7 +109,7 @@ class LinearRange(Range):
                 ]
             elif self.dynamic or self.function1 or self.validation:
                 return [Cell("RC", ndx, self.start.column, "") for ndx in values]
-        if self.direction == "right":
+        if self.direction == DIRECTIONS.horizontal:
             values = range(self.start.column, self.end.column + 1)
             if self.contents:
                 return [
@@ -163,6 +165,7 @@ def parse_linear_range(rng):
         contents = None
     validation = parse_formula(rng.get("validation", None))
     function1 = parse_formula(rng.get("function1", None))
+
     return LinearRange(
         name=rng["name"],
         start=parse_cell(rng["start"]),
@@ -181,7 +184,7 @@ def parse_base_range(rng):
 
 
 def parse_range(rng):
-    if check_type(rng, "range"):
+    if check_type(rng, "range", exception=False):
         return parse_base_range(rng)
-    if check_type(rng, "linear_range"):
+    if check_type(rng, "linear_range", exception=False):
         return parse_linear_range(rng)

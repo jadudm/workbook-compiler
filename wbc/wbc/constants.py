@@ -7,3 +7,7 @@ MAX_COLUMNS = 2**8
 DIRECTIONS = DotMap()
 DIRECTIONS.vertical = "vertical"
 DIRECTIONS.horizontal = "horizontal"
+
+STYLES = DotMap()
+STYLES.thin = "thin"
+STYLES.double = "double"

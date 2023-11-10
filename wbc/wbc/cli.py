@@ -2,7 +2,7 @@ import click
 import sys
 import importlib.util
 
-from wbc.parser.parser import parse
+from wbc.parser.parse import parse
 from wbc.renderer.render import render
 
 

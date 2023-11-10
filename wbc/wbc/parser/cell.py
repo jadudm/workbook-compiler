@@ -21,7 +21,10 @@ class Cell:
         column: Union[str, int],
         # Optional
         contents: Contents = None,
+        style: str = None
     ):
+        self.style = style
+        
         self.notation = notation
         if notation not in ALLOWED_NOTATIONS:
             raise ParseException(f"Cell notation is not A1 or RC")

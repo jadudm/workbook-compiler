@@ -12,9 +12,14 @@ class Contents:
 
     def __str__(self):
         return self.value
+    
+    def __reprt__(self):
+        return self.__str__()
 
 
 def parse_contents(c):
+    if c == None:
+        return None
     check_type(c, "contents")
     requires_keys(c, ["value"])
     return Contents(c["value"])

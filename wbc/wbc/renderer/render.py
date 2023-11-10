@@ -3,6 +3,7 @@ import re
 import openpyxl as pxl
 from openpyxl.workbook.defined_name import DefinedName
 from openpyxl.utils import quote_sheetname, absolute_coordinate
+from openpyxl.styles import NamedStyle, Font, Border, Side
 
 from wbc.parser.workbook import Workbook
 from wbc.parser.range import Range, LinearRange
@@ -38,7 +39,7 @@ def add_named_range(opwb, opsh, sh, r, prepend_sheet_name=False):
 # populate it with its contents. This way, we can easily
 # populate cells in the workbook from those Cell objects.
 def fill_range_values(wbcwb, opsh, r):
-    if isinstance(r, DegenerateRange) or isinstance(r, LinearRange):
+    if isinstance(r, LinearRange):
         r: LinearRange
         if r.header:
             wbc = opsh[r.header.as_a1()]
@@ -48,6 +49,8 @@ def fill_range_values(wbcwb, opsh, r):
                 cell: Cell
                 wbc = opsh[cell.as_a1()]
                 wbc.value = f"{cell.contents.value}"
+                if r.style:
+                    wbc.style = r.style
         if r.dynamic:
             m = getattr(wbcwb, "functions")
             fun = getattr(m, r.dynamic)
@@ -55,14 +58,17 @@ def fill_range_values(wbcwb, opsh, r):
                 cell: Cell
                 wbc = opsh[cell.as_a1()]
                 wbc.value = fun(cell)
+                if r.style:
+                    wbc.style = r.style
         if r.validation:
-            print(f"validation {r.validation}")
+            pass
         if r.function1:
-            print(r)
             for cell in r.locations():
                 cell: Cell
                 wbc = opsh[cell.as_a1()]
                 wbc.value = r.function1
+                if r.style:
+                    wbc.style = r.style
 
     elif isinstance(r, Range):
         r: Range
@@ -84,6 +90,14 @@ def render(wbcwb: Workbook):
             add_named_range(opwb, opsh, wbcsh, r)
         for r in wbcsh.ranges:
             fill_range_values(wbcwb, opsh, r)
+    for ns in wbcwb.named_styles:
+        the_style = NamedStyle(name=ns.name)
+        if ns.font:
+            the_style.font = ns.font
+        if ns.border:
+            the_style.border = ns.border
+        opwb.add_named_style(the_style)
+
     # If there is more than one sheet, remove the default.
     if len(opwb.sheetnames) > 1:
         opwb.remove(opwb["Sheet"])

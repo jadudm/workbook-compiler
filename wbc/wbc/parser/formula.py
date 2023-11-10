@@ -138,4 +138,6 @@ def _parse_formula(node):
 
 
 def parse_formula(node):
+    if node == None:
+        return None
     return Formula(_parse_formula(node))
