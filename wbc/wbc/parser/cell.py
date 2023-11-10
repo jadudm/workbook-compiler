@@ -4,17 +4,10 @@ from wbc.constants import (
     MAX_ROWS,
     MAX_COLUMNS,
 )
-from wbc.parser.util import (
-    excel_from_number,
-    number_from_excel
-)
+from wbc.parser.util import excel_from_number, number_from_excel
 from wbc.parser.exceptions import ParseException
-from .contents import (Contents, parse_contents)
-from wbc.parser.util import (
-    check_type,
-    requires_keys
-    )
-
+from .contents import Contents, parse_contents
+from wbc.parser.util import check_type, requires_keys
 
 
 class Cell:

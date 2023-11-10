@@ -1,9 +1,7 @@
 from typing import Dict, Any
 from wbc.parser.exceptions import ParseException
-from wbc.parser.util import (
-    check_type,
-    requires_keys
-    )
+from wbc.parser.util import check_type, requires_keys
+
 
 class Contents:
     def __init__(self, value, properties: Dict[str, Any] = None):

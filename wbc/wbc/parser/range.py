@@ -1,12 +1,8 @@
 from wbc.parser.exceptions import ParseException
-from .cell import (Cell, parse_cell, Contents, parse_contents)
-from .formula import (parse_formula)
+from .cell import Cell, parse_cell, Contents, parse_contents
+from .formula import parse_formula
 from typing import List
-from wbc.parser.util import (
-    check_type,
-    requires_keys,
-    allowed_keys
-    )
+from wbc.parser.util import check_type, requires_keys, allowed_keys
 
 
 class Range:
@@ -108,10 +104,7 @@ class LinearRange(Range):
                     for ndx, v in zip(values, self.contents)
                 ]
             elif self.dynamic or self.function1 or self.validation:
-                return [
-                    Cell("RC", ndx, self.start.column, "")
-                    for ndx in values
-                ]
+                return [Cell("RC", ndx, self.start.column, "") for ndx in values]
         if self.direction == "right":
             values = range(self.start.column, self.end.column + 1)
             if self.contents:
@@ -120,10 +113,8 @@ class LinearRange(Range):
                     for ndx, v in zip(values, self.contents)
                 ]
             elif self.dynamic or self.function1 or self.validation:
-                return [
-                    Cell("RC", self.start.row, ndx, "")
-                    for ndx in values
-                ]
+                return [Cell("RC", self.start.row, ndx, "") for ndx in values]
+
     def _start(self):
         return self.start
 
@@ -154,14 +145,17 @@ class LinearRange(Range):
             addl += f" direction: {self.direction}"
         return base + addl
 
+
 def parse_linear_range(rng):
     check_type(rng, "linear_range")
     requires_keys(rng, ["type", "name", "start", "length"])
-    allowed_keys(rng, ["type", "name", "start", "length"] + [
-        "header", "contents", "dynamic", "validation", "function1", "direction"
-    ])
+    allowed_keys(
+        rng,
+        ["type", "name", "start", "length"]
+        + ["header", "contents", "dynamic", "validation", "function1", "direction"],
+    )
 
-    if 'contents' in rng:
+    if "contents" in rng:
         contents = [parse_contents(c) for c in rng.get("contents", None)]
     else:
         contents = None
@@ -179,11 +173,13 @@ def parse_linear_range(rng):
         direction=rng.get("direction", "down"),
     )
 
+
 def parse_base_range(rng):
     raise ParseException("no implementation for parsing base ranges")
 
+
 def parse_range(rng):
-    if check_type(rng, 'range'):
+    if check_type(rng, "range"):
         return parse_base_range(rng)
-    if check_type(rng, 'linear_range'):
+    if check_type(rng, "linear_range"):
         return parse_linear_range(rng)

@@ -1,9 +1,5 @@
-from wbc.parser.range import (Range, parse_range)
-from wbc.parser.util import (
-    check_type,
-    requires_keys
-    )
-
+from wbc.parser.range import Range, parse_range
+from wbc.parser.util import check_type, requires_keys
 
 
 class Sheet:
@@ -22,4 +18,3 @@ def parse_sheet(sh):
     requires_keys(sh, ["type", "name", "ranges"])
     check_type(sh, "sheet")
     return Sheet(sh["name"], [parse_range(r) for r in sh["ranges"]])
-
