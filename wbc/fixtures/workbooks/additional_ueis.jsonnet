@@ -34,12 +34,13 @@ local validations = C.Sheet(
 );
 
 local styles = [
-    C.NamedStyle(
-      'hello',
-      C.Border(outline=C.Side(const.BORDER.thick,
-                              const.COLORS.midnightblue))
-    ),
-  ];
+  C.NamedStyle(
+    'hello',
+    C.Border(outline=C.Side(const.BORDER.thick,
+                            const.COLORS.midnightblue)),
+    C.SolidFill(const.COLORS.linen)
+  ),
+];
 
 C.Workbook(
   'Additional UEIs',

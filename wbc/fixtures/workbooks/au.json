@@ -15,7 +15,12 @@
             "type": "border"
          },
          "name": "hello",
-         "pattern_fill": null,
+         "pattern_fill": {
+            "end_color": "LINEN",
+            "fill_type": "solid",
+            "start_color": "LINEN",
+            "type": "pattern_fill"
+         },
          "type": "named_style"
       }
    ],

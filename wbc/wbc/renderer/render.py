@@ -7,7 +7,9 @@ from openpyxl.styles import (
     NamedStyle as PyxlNamedStyle,
     Font as PyxlFont,
     Border as PyxlBorder,
-    Side as PyxlSide)
+    Side as PyxlSide,
+    PatternFill as PyxlPatternFill
+    )
 from colour import Color
 
 from wbc.parser.workbook import Workbook
@@ -125,6 +127,12 @@ def border2pyxlborder(nsb):
                           top=top,
                           bottom=bottom)
 
+def pf2pyxlpf(pf):
+    return PyxlPatternFill(fill_type=pf.fill_type,
+                           start_color=color2argb(pf.start_color),
+                           end_color=color2argb(pf.end_color)
+                           )
+
 # opwb : openpxl workbook
 # opsh : openpxl sheet
 # wbcwb : workbook compiler Workbook
@@ -138,6 +146,8 @@ def render(wbcwb: Workbook):
         if ns.border:
             the_style.border = border2pyxlborder(ns.border)
             opwb.add_named_style(the_style)
+        if ns.pattern_fill:
+            the_style.fill = pf2pyxlpf(ns.pattern_fill)
 
     for wbcsh in wbcwb.sheets:
         opsh = opwb.create_sheet(wbcsh.name)

@@ -71,6 +71,12 @@ local PatternFill(fill_type, start_color, end_color) = Types.PatternFill {
   end_color: end_color,
 };
 
+local SolidFill(color) = Types.PatternFill {
+  fill_type: "solid",
+  start_color: color,
+  end_color: color
+};
+
 local NamedStyle(name, border=null, patt=null) = Types.NamedStyle {
   name: name,
   border: border,
@@ -89,5 +95,6 @@ local NamedStyle(name, border=null, patt=null) = Types.NamedStyle {
   NamedStyle:: NamedStyle,
   Border:: Border,
   Side:: Side,
-  PatternFill:: PatternFill
+  PatternFill:: PatternFill,
+  SolidFill:: SolidFill
 }
