@@ -23,16 +23,32 @@ class Border():
         self.outline = outline
 
 class Font():
-    def __init__(self, face=None, bold:bool=False, size:int=12, color:Color=Color("black")):
+    def __init__(self, face=None, bold:bool=False, size:int=12, color:str=None):
         self.face = face
         self.bold = bold
-        self.color = color
+        if self.color:
+            self.color = Color(color)
+        else:
+            self.color = color
+
+class PatternFill():
+    def __init__(self, fill_type=None, start_color=None, end_color=None):
+        self.fill_type = fill_type
+        if start_color:
+            self.start_color = Color(start_color)
+        else:
+            self.start_color = start_color
+        if end_color:
+            self.end_color = Color(end_color)
+        else:
+            self.end_color = end_color
 
 class NamedStyle():
-    def __init__(self, name, font:Font=None, border:Border=None):
+    def __init__(self, name, font:Font=None, border:Border=None, pattern_fill=None):
         self.name = name
         self.font = font
-        self.border = None
+        self.border = border
+        self.pattern_fill=pattern_fill
 
 def parse_font(f):
     if f is None:
@@ -42,7 +58,7 @@ def parse_font(f):
     return Font(face = f.get("face", None),
                 bold = f.get("bold", False),
                 size = f.get("size", 12),
-                color = Color(f.get("color", "black"))
+                color = f.get("color", "black")
                 )
 
 def parse_side(s):
@@ -66,11 +82,21 @@ def parse_border(b):
                   outline=parse_side(b.get("outline", None))
     )
 
+def parse_pattern_fill(f):
+    if f is None:
+        return None
+    requires_keys(f, ["type", "fill_type"])
+    check_type(f, "pattern_fill")
+    return PatternFill(fill_type=f.get("fill_type", None),
+                       start_color=f.get("start_color", None),
+                       end_color=f.get("end_color", None)
+                       )
 
 def parse_named_style(ns):
     requires_keys(ns, ["type", "name"])
     check_type(ns, "named_style")
     return NamedStyle(ns.get("name"), 
                       font=parse_font(ns.get("font", None)),
-                      border=parse_border(ns.get("border", None))
+                      border=parse_border(ns.get("border", None)),
+                      pattern_fill=parse_pattern_fill(ns.get("pattern_fill", None))
                       )

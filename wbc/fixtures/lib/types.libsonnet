@@ -7,6 +7,9 @@ local Cell = make_type("cell");
 local Contents = make_type("contents");
 
 local NamedStyle = make_type("named_style");
+local Border = make_type("border");
+local Side = make_type("side");
+local PatternFill = make_type("pattern_fill");
 
 local Formula = make_type("formula");
 local Application = make_type("application");
@@ -29,6 +32,9 @@ local NamedRange = make_opera_type("named_range");
     Contents: Contents,
 
     NamedStyle: NamedStyle,
+    Border: Border,
+    Side: Side,
+    PatternFill: PatternFill,
 
     Formula: Formula,
     Application: Application,

@@ -2,7 +2,20 @@
    "name": "Additional UEIs",
    "named_styles": [
       {
+         "border": {
+            "bottom": null,
+            "left": null,
+            "outline": {
+               "color": "MIDNIGHTBLUE",
+               "style": "thick",
+               "type": "side"
+            },
+            "right": null,
+            "top": null,
+            "type": "border"
+         },
          "name": "hello",
+         "pattern_fill": null,
          "type": "named_style"
       }
    ],
@@ -13,12 +26,14 @@
             {
                "contents": [
                   {
+                     "style": null,
                      "type": "contents",
                      "value": "1.0.0"
                   }
                ],
                "direction": "horizontal",
                "header": {
+                  "style": "hello",
                   "type": "contents",
                   "value": "Version number"
                },
@@ -35,12 +50,14 @@
             {
                "contents": [
                   {
+                     "style": null,
                      "type": "contents",
                      "value": ""
                   }
                ],
                "direction": "horizontal",
                "header": {
+                  "style": "hello",
                   "type": "contents",
                   "value": "Auditee UEI"
                },

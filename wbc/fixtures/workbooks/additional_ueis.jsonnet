@@ -1,19 +1,25 @@
+local const = import '../lib/constants.libsonnet';
 local C = import '../lib/constructors.libsonnet';
 
 local version = '1.0.0';
 
-local make_field(name, row, column, header, contents) = C.LinearRange(name,
-                                                                      C.RC(row, column),
-                                                                      1,
-                                                                      direction="horizontal",
-                                                                      header=C.Contents(header),
-                                                                      contents=[C.Contents(contents)]);
+local make_field(name,
+                 row,
+                 column,
+                 header,
+                 contents) =
+  C.LinearRange(name,
+                C.RC(row, column),
+                1,
+                direction='horizontal',
+                header=C.Contents(header, style='hello'),
+                contents=[C.Contents(contents)]);
 
 local coversheet = C.Sheet(
   'Coversheet',
   [
-    make_field("version", 1, 1, "Version number", version),
-    make_field("auditee_uei", 2, 1, "Auditee UEI", "")
+    make_field('version', 1, 1, 'Version number', version),
+    make_field('auditee_uei', 2, 1, 'Auditee UEI', ''),
   ],
 );
 
@@ -27,6 +33,14 @@ local validations = C.Sheet(
   [],
 );
 
+local styles = [
+    C.NamedStyle(
+      'hello',
+      C.Border(outline=C.Side(const.BORDER.thick,
+                              const.COLORS.midnightblue))
+    ),
+  ];
+
 C.Workbook(
   'Additional UEIs',
   [
@@ -34,7 +48,5 @@ C.Workbook(
     form,
     validations,
   ],
-  named_styles=[
-    C.NamedStyle("hello")
-  ],
+  named_styles=styles
 )
