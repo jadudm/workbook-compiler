@@ -54,6 +54,9 @@ class Cell:
     def as_a1(self):
         return f"{excel_from_number(self.column)}{self.row}"
 
+    def get_column_as_a1(self):
+        return excel_from_number(self.column)
+
     def offset_row(self, v):
         return self.row + v
 

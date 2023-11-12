@@ -6,8 +6,14 @@ local BORDER = {
         thick: "thick"
     };
 
+local FACES = {
+    tahoma: "Tahoma",
+    arial: "Arial",
+    calibri: "Calibri"
+};
 
 {
     BORDER: BORDER,
-    COLORS: colors
+    COLORS: colors,
+    FACES: FACES
 }

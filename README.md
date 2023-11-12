@@ -24,6 +24,10 @@ from within `wbc``
 coverage run -m pytest ; coverage report -m
 ```
 
+```
+jsonnet fixtures/workbooks/additional_ueis.jsonnet > fixtures/workbooks/au.json && poetry run wbc fixtures/workbooks/au.json fixtures/workbooks/au.xlsx 
+```
+
 ### Adding packages
 
 ```

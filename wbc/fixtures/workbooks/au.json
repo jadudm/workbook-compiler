@@ -2,23 +2,37 @@
    "name": "Additional UEIs",
    "named_styles": [
       {
-         "border": {
-            "bottom": null,
-            "left": null,
-            "outline": {
-               "color": "MIDNIGHTBLUE",
-               "style": "thick",
-               "type": "side"
-            },
-            "right": null,
-            "top": null,
-            "type": "border"
+         "border": null,
+         "font": {
+            "bold": false,
+            "color": "WHITE",
+            "face": "Tahoma",
+            "size": 12,
+            "type": "font"
          },
-         "name": "hello",
+         "name": "white_on_black",
          "pattern_fill": {
-            "end_color": "LINEN",
+            "end_color": "BLACK",
             "fill_type": "solid",
-            "start_color": "LINEN",
+            "start_color": "BLACK",
+            "type": "pattern_fill"
+         },
+         "type": "named_style"
+      },
+      {
+         "border": null,
+         "font": {
+            "bold": true,
+            "color": "WHITE",
+            "face": "Tahoma",
+            "size": 12,
+            "type": "font"
+         },
+         "name": "bold_white_on_blue",
+         "pattern_fill": {
+            "end_color": "BLUE",
+            "fill_type": "solid",
+            "start_color": "BLUE",
             "type": "pattern_fill"
          },
          "type": "named_style"
@@ -31,50 +45,115 @@
             {
                "contents": [
                   {
-                     "style": null,
+                     "style": "white_on_black",
                      "type": "contents",
-                     "value": "1.0.0"
+                     "value": "Federal Audit Clearinghouse\nfac.gov",
+                     "wrap": true
+                  },
+                  {
+                     "style": "white_on_black",
+                     "type": "contents",
+                     "value": "This workbook contains two worksheets: a coversheet (this sheet)\nand a data entry sheet.\n\nBefore submitting, please make sure the fields below are filled out.",
+                     "wrap": true
                   }
                ],
                "direction": "horizontal",
-               "header": {
-                  "style": "hello",
-                  "type": "contents",
-                  "value": "Version number"
-               },
-               "length": 1,
-               "name": "version",
+               "header": null,
+               "height": 60,
+               "length": 2,
+               "name": "header_cells",
                "start": {
                   "column": 1,
                   "notation": "RC",
                   "row": 1,
                   "type": "cell"
                },
-               "type": "linear_range"
+               "type": "linear_range",
+               "width": 60
             },
             {
                "contents": [
                   {
                      "style": null,
                      "type": "contents",
-                     "value": ""
+                     "value": "1.0.0",
+                     "wrap": false
                   }
                ],
                "direction": "horizontal",
                "header": {
-                  "style": "hello",
+                  "style": "bold_white_on_blue",
                   "type": "contents",
-                  "value": "Auditee UEI"
+                  "value": "Version number",
+                  "wrap": false
                },
+               "height": 60,
                "length": 1,
-               "name": "auditee_uei",
+               "name": "version",
                "start": {
                   "column": 1,
                   "notation": "RC",
                   "row": 2,
                   "type": "cell"
                },
-               "type": "linear_range"
+               "type": "linear_range",
+               "width": null
+            },
+            {
+               "contents": [
+                  {
+                     "style": null,
+                     "type": "contents",
+                     "value": "AdditionalUeis",
+                     "wrap": false
+                  }
+               ],
+               "direction": "horizontal",
+               "header": {
+                  "style": "bold_white_on_blue",
+                  "type": "contents",
+                  "value": "Section",
+                  "wrap": false
+               },
+               "height": 60,
+               "length": 1,
+               "name": "section_name",
+               "start": {
+                  "column": 1,
+                  "notation": "RC",
+                  "row": 3,
+                  "type": "cell"
+               },
+               "type": "linear_range",
+               "width": null
+            },
+            {
+               "contents": [
+                  {
+                     "style": null,
+                     "type": "contents",
+                     "value": "",
+                     "wrap": false
+                  }
+               ],
+               "direction": "horizontal",
+               "header": {
+                  "style": "bold_white_on_blue",
+                  "type": "contents",
+                  "value": "Auditee UEI",
+                  "wrap": false
+               },
+               "height": 60,
+               "length": 1,
+               "name": "auditee_uei",
+               "start": {
+                  "column": 1,
+                  "notation": "RC",
+                  "row": 4,
+                  "type": "cell"
+               },
+               "type": "linear_range",
+               "width": null
             }
          ],
          "type": "sheet"

@@ -42,6 +42,8 @@ class LinearRange(Range):
         # Optional
         header: Contents = None,
         contents: List[Contents] = None,
+        width: int = None,
+        height: int = None,
         dynamic: str = None,
         validation: Formula = None,
         function1: Formula = None,
@@ -53,6 +55,8 @@ class LinearRange(Range):
         self.validation = validation
         self.function1 = function1
         self.style = style
+        self.width = width
+        self.height = height
         
         # Construct the end_cell from the offset.
         # Then, set the notation to be the same as the start cell.
@@ -140,6 +144,14 @@ class LinearRange(Range):
             dist = self.end.column - self.start.column + 1
         return dist
 
+    def get_start_column(self, notation="RC"):
+        if notation == "RC":
+            return self.start.column
+        if notation == "A1":
+            return self.start.get_column_as_a1()
+    def get_start_row(self, notation="RC"):
+        return self.start.row
+
     def __str__(self):
         base = super(LinearRange, self).__str__()
         addl = ""
@@ -156,7 +168,8 @@ def parse_linear_range(rng):
     allowed_keys(
         rng,
         ["type", "name", "start", "length"]
-        + ["header", "contents", "dynamic", "validation", "function1", "direction"],
+        + ["header", "width", "height", "contents" ] 
+        + ["dynamic", "validation", "function1", "direction"],
     )
 
     if "contents" in rng:
@@ -172,6 +185,8 @@ def parse_linear_range(rng):
         length=rng["length"],
         header=parse_contents(rng.get("header", None)),
         contents=contents,
+        width=rng.get("width", None),
+        height=rng.get("height", None),
         dynamic=rng.get("dynamic", None),
         validation=f"={validation}" if validation else None,
         function1=f"={function1}" if function1 else None,

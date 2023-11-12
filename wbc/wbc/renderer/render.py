@@ -2,6 +2,8 @@ import re
 
 import openpyxl as pxl
 from openpyxl.workbook.defined_name import DefinedName
+from openpyxl.worksheet.dimensions import RowDimension, ColumnDimension, DimensionHolder
+from openpyxl.styles import Alignment
 from openpyxl.utils import quote_sheetname, absolute_coordinate
 from openpyxl.styles import (
     NamedStyle as PyxlNamedStyle,
@@ -9,12 +11,13 @@ from openpyxl.styles import (
     Border as PyxlBorder,
     Side as PyxlSide,
     PatternFill as PyxlPatternFill
-    )
+)
 from colour import Color
 
 from wbc.parser.workbook import Workbook
 from wbc.parser.range import Range, LinearRange
 from wbc.parser.cell import Cell
+from wbc.parser.style import Font
 from wbc.parser.exceptions import RenderException
 
 
@@ -46,6 +49,7 @@ def add_named_range(opwb, opsh, sh, r, prepend_sheet_name=False):
 # populate it with its contents. This way, we can easily
 # populate cells in the workbook from those Cell objects.
 def fill_range_values(wbcwb, opsh, r):
+    # A dictionary to build up dimensions of columns
     if isinstance(r, LinearRange):
         r: LinearRange
         if r.header:
@@ -58,6 +62,16 @@ def fill_range_values(wbcwb, opsh, r):
                 cell: Cell
                 wbc = opsh[cell.as_a1()]
                 wbc.value = f"{cell.contents.value}"
+                if cell.contents.style:
+                    wbc.style = cell.contents.style
+                if cell.contents.wrap:
+                    wbc.alignment = Alignment(wrap_text=cell.contents.wrap)
+                if r.width:
+                    opsh.column_dimensions[cell.get_column_as_a1()].width = r.width
+
+                if r.height:
+                    opsh.row_dimensions[cell.row].height = r.height
+
         if r.dynamic:
             m = getattr(wbcwb, "functions")
             fun = getattr(m, r.dynamic)
@@ -110,28 +124,37 @@ def border2pyxlborder(nsb):
         right = None
         if nsb.left:
             right = PyxlSide(style=nsb.right.style,
-                            color=color2argb(nsb.right.color)
-                            )
+                             color=color2argb(nsb.right.color)
+                             )
         top = None
         if nsb.left:
             top = PyxlSide(style=nsb.top.style,
-                            color=color2argb(nsb.top.color)
-                            )
+                           color=color2argb(nsb.top.color)
+                           )
         bottom = None
         if nsb.left:
             bottom = PyxlSide(style=nsb.bottom.style,
-                            color=color2argb(nsb.bottom.color)
-                            )
+                              color=color2argb(nsb.bottom.color)
+                              )
         return PyxlBorder(left=left,
                           right=right,
                           top=top,
                           bottom=bottom)
+
 
 def pf2pyxlpf(pf):
     return PyxlPatternFill(fill_type=pf.fill_type,
                            start_color=color2argb(pf.start_color),
                            end_color=color2argb(pf.end_color)
                            )
+
+
+def font2pyxlfont(f: Font):
+    return PyxlFont(bold=f.bold,
+                    color=color2argb(f.color),
+                    name=f.face
+                    )
+
 
 # opwb : openpxl workbook
 # opsh : openpxl sheet
@@ -142,12 +165,13 @@ def render(wbcwb: Workbook):
     for ns in wbcwb.named_styles:
         the_style = PyxlNamedStyle(name=ns.name)
         if ns.font:
-            the_style.font = ns.font
+            the_style.font = font2pyxlfont(ns.font)
         if ns.border:
             the_style.border = border2pyxlborder(ns.border)
             opwb.add_named_style(the_style)
         if ns.pattern_fill:
             the_style.fill = pf2pyxlpf(ns.pattern_fill)
+        opwb.add_named_style(the_style)
 
     for wbcsh in wbcwb.sheets:
         opsh = opwb.create_sheet(wbcsh.name)

@@ -13,10 +13,11 @@ local Sheet(name, rs) =
     ranges: rs,
   };
 
-local Contents(value, style=null) =
+local Contents(value, style=null, wrap=false) =
   Types.Contents {
     value: value,
-    style: style
+    style: style,
+    wrap: wrap
   };
 
 local LinearRange(
@@ -24,6 +25,8 @@ local LinearRange(
   start,
   length,
   direction='vertical',
+  width=null,
+  height=null,
   header=Contents(''),
   contents=[],
       ) =
@@ -31,6 +34,8 @@ local LinearRange(
     name: name,
     start: start,
     length: length,
+    width: width,
+    height: height,
     direction: direction,
     header: header,
     contents: contents,
@@ -65,6 +70,13 @@ local Side(style=null, color=null) = Types.Side + {
   color: color
 };
 
+local Font(face=null, color=null, bold=false, size=12) = Types.Font + {
+  face: face,
+  bold: bold,
+  size: size,
+  color: color
+};
+
 local PatternFill(fill_type, start_color, end_color) = Types.PatternFill {
   fill_type: fill_type,
   start_color: start_color,
@@ -77,24 +89,26 @@ local SolidFill(color) = Types.PatternFill {
   end_color: color
 };
 
-local NamedStyle(name, border=null, patt=null) = Types.NamedStyle {
+local NamedStyle(name, border=null, font=null, fill=null) = Types.NamedStyle {
   name: name,
   border: border,
-  pattern_fill: patt,
+  font: font,
+  pattern_fill: fill,
 };
 
 
 {
-  Workbook:: Workbook,
-  Sheet:: Sheet,
-  LinearRange:: LinearRange,
+  A1:: A1,
+  Border:: Border,
   Cell:: Cell,
   Contents:: Contents,
-  RC:: RC,
-  A1:: A1,
+  Font:: Font,
+  LinearRange:: LinearRange,
   NamedStyle:: NamedStyle,
-  Border:: Border,
-  Side:: Side,
   PatternFill:: PatternFill,
-  SolidFill:: SolidFill
+  RC:: RC,
+  Sheet:: Sheet,
+  Side:: Side,
+  SolidFill:: SolidFill,
+  Workbook:: Workbook,
 }

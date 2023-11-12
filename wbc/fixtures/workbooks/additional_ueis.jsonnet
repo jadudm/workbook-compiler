@@ -1,26 +1,42 @@
+local coversheet_helpers = import "coversheet.libsonnet";
+
 local const = import '../lib/constants.libsonnet';
 local C = import '../lib/constructors.libsonnet';
+local S = import '../lib/styles.libsonnet';
 
 local version = '1.0.0';
+local styles = [S.white_on_black, S.bold_white_on_blue];
 
-local make_field(name,
-                 row,
-                 column,
-                 header,
-                 contents) =
-  C.LinearRange(name,
-                C.RC(row, column),
-                1,
-                direction='horizontal',
-                header=C.Contents(header, style='hello'),
-                contents=[C.Contents(contents)]);
+local long_header_message = 'This workbook contains two worksheets: '
+                            + 'a coversheet (this sheet)\nand a data entry sheet.'
+                            + '\n\n'
+                            + 'Before submitting, please make sure the fields below are filled out.';
 
 local coversheet = C.Sheet(
   'Coversheet',
   [
-    make_field('version', 1, 1, 'Version number', version),
-    make_field('auditee_uei', 2, 1, 'Auditee UEI', ''),
+    C.LinearRange('header_cells',
+                  C.RC(1, 1),
+                  2,
+                  direction='horizontal',
+                  header=null,
+                  width=60,
+                  height=60,
+                  contents=[
+                    C.Contents('Federal Audit Clearinghouse\nfac.gov',
+                               style='white_on_black',
+                               wrap=true),
+                    C.Contents(long_header_message,
+                               style='white_on_black',
+                               wrap=true),
+                  ]),
+
+    coversheet_helpers.make_field('version', 2, 1, 'Version number', version),
+    coversheet_helpers.make_field('section_name', 3, 1, 'Section', 'AdditionalUeis'),
+    coversheet_helpers.make_field('auditee_uei', 4, 1, 'Auditee UEI', ''),
+
   ],
+
 );
 
 local form = C.Sheet(
@@ -32,15 +48,6 @@ local validations = C.Sheet(
   'Validations',
   [],
 );
-
-local styles = [
-  C.NamedStyle(
-    'hello',
-    C.Border(outline=C.Side(const.BORDER.thick,
-                            const.COLORS.midnightblue)),
-    C.SolidFill(const.COLORS.linen)
-  ),
-];
 
 C.Workbook(
   'Additional UEIs',

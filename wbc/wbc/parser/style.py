@@ -26,7 +26,7 @@ class Font():
     def __init__(self, face=None, bold:bool=False, size:int=12, color:str=None):
         self.face = face
         self.bold = bold
-        if self.color:
+        if color:
             self.color = Color(color)
         else:
             self.color = color

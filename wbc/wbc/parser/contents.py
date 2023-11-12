@@ -7,12 +7,14 @@ class Contents:
     def __init__(self, 
                  value,
                  style=None, 
+                 wrap=False,
                  properties: Dict[str, Any] = None):
         if isinstance(value, Contents):
             raise ParseException(f"Contents cannot contain Contents")
         self.value = value
         self.style = style
         self.properties = properties
+        self.wrap = wrap
 
     def __str__(self):
         return self.value
@@ -27,4 +29,6 @@ def parse_contents(c):
     check_type(c, "contents")
     requires_keys(c, ["value"])
     return Contents(c["value"],
-                    style=c.get("style", None))
+                    style=c.get("style", None),
+                    wrap=c.get("wrap", False)
+                    )
