@@ -138,7 +138,7 @@ class LinearRange(Range):
 
     def __len__(self):
         # Have to be inclusive of the start, so +1 to arithmetic.
-        if self.direction == "down":
+        if self.direction == DIRECTIONS.vertical:
             dist = self.end.row - self.start.row + 1
         else:
             dist = self.end.column - self.start.column + 1
@@ -175,7 +175,8 @@ def parse_linear_range(rng):
     if "contents" in rng:
         contents = [parse_contents(c) for c in rng.get("contents", None)]
     else:
-        contents = None
+        # FIXME Should this be none or []?
+        contents = []
     validation = parse_formula(rng.get("validation", None))
     function1 = parse_formula(rng.get("function1", None))
 
@@ -190,7 +191,7 @@ def parse_linear_range(rng):
         dynamic=rng.get("dynamic", None),
         validation=f"={validation}" if validation else None,
         function1=f"={function1}" if function1 else None,
-        direction=rng.get("direction", "down"),
+        direction=rng.get("direction", DIRECTIONS.vertical),
     )
 
 
@@ -203,3 +204,5 @@ def parse_range(rng):
         return parse_base_range(rng)
     if check_type(rng, "linear_range", exception=False):
         return parse_linear_range(rng)
+    else:
+        raise ParseException(f"no range type found for {rng}")

@@ -1,6 +1,5 @@
 from .exceptions import ParseException
 
-
 def check_type(o, type, exception=True):
     if "type" not in o:
         if exception:

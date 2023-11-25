@@ -116,7 +116,7 @@ This would suggest
 
 ```
 name_string := [A-Za-z]+[A-Za-z0-9_]*
-drection := "down" | "right"
+drection := "vertical" | "horizontal"
 Range := { type: "range", name: name_string, start: Cell, end: Cell}
        | { type: "linear_range", name: name_string, start: Cell, length: int, header: Cell, direction: direction }
        | { type: "degenerate_range", name: name_string, start: Cell }

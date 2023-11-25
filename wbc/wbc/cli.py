@@ -2,7 +2,7 @@ import click
 import sys
 import importlib.util
 
-from wbc.parser.parse import parse
+from wbc.parser.parse import parse_jsonnet, parse_json
 from wbc.renderer.render import render
 
 
@@ -31,12 +31,14 @@ def cli(input, output, functions):
     """
 
     # wbc workbook
-    wbcwb = parse(input)
+    if input.endswith(".jsonnet"):
+        wbcwb = parse_jsonnet(input)
+    elif input.endswith(".json"):
+        wbcwb = parse_json(input)
 
     # openpxl workbook
     if functions:
         m = load_code("functions", functions)
-        # print(m.random_uei(3))
         setattr(wbcwb, "functions", m)
     else:
         setattr(wbcwb, "functions", None)

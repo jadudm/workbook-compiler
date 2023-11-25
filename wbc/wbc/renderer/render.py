@@ -68,7 +68,6 @@ def fill_range_values(wbcwb, opsh, r):
                     wbc.alignment = Alignment(wrap_text=cell.contents.wrap)
                 if r.width:
                     opsh.column_dimensions[cell.get_column_as_a1()].width = r.width
-
                 if r.height:
                     opsh.row_dimensions[cell.row].height = r.height
 
@@ -155,13 +154,7 @@ def font2pyxlfont(f: Font):
                     name=f.face
                     )
 
-
-# opwb : openpxl workbook
-# opsh : openpxl sheet
-# wbcwb : workbook compiler Workbook
-# wbcsh : Sheet
-def render(wbcwb: Workbook):
-    opwb = pxl.Workbook()
+def add_named_styles(wbcwb, opwb):
     for ns in wbcwb.named_styles:
         the_style = PyxlNamedStyle(name=ns.name)
         if ns.font:
@@ -172,6 +165,14 @@ def render(wbcwb: Workbook):
         if ns.pattern_fill:
             the_style.fill = pf2pyxlpf(ns.pattern_fill)
         opwb.add_named_style(the_style)
+
+# opwb : openpxl workbook
+# opsh : openpxl sheet
+# wbcwb : workbook compiler Workbook
+# wbcsh : workbook compiler Sheet
+def render(wbcwb: Workbook):
+    opwb = pxl.Workbook()
+    add_named_styles(wbcwb, opwb)
 
     for wbcsh in wbcwb.sheets:
         opsh = opwb.create_sheet(wbcsh.name)
